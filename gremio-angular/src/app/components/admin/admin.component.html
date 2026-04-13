@@ -1,0 +1,154 @@
+<!-- Modal recorte noticia -->
+@if (modalRecorte()) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-lg border border-yellow-600/50">
+      <h3 class="text-2xl text-yellow-500 fuente-gremio mb-4 border-b border-yellow-700/30 pb-2">
+        <i class="fa-solid fa-crop-simple mr-2"></i>Encuadra la Imagen
+      </h3>
+      <div class="img-container bg-black border border-gray-700 mb-4 rounded flex justify-center items-center">
+        <img #imgRecorteNoticia [src]="imgSrc" style="max-width:100%">
+      </div>
+      <div class="flex justify-end gap-3 mt-4">
+        <button (click)="cancelarRecorte()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="confirmarRecorte()" class="px-5 py-2 btn-medieval rounded font-bold"><i class="fa-solid fa-check mr-2"></i>Confirmar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal retocar logros -->
+@if (modalLogros()) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-md border border-yellow-600/50 flex flex-col max-h-[90vh]">
+      <h3 class="text-2xl text-yellow-500 fuente-gremio mb-2"><i class="fa-solid fa-wrench mr-2"></i>Retocar Progreso</h3>
+      <p class="text-gray-300 text-sm mb-4 border-b border-gray-700 pb-2">Editando contador de: <strong class="text-white">{{ nombreEditandoLogros }}</strong></p>
+      <div class="overflow-y-auto tabla-scroll flex-grow pr-2 space-y-2 mb-4">
+        @for (cat of todasCategorias; track cat) {
+          <div class="flex justify-between items-center bg-black/50 p-3 rounded border border-gray-700/50 hover:border-yellow-600/50 transition">
+            <label class="text-sm text-gray-300 w-2/3 truncate">{{ cat }}</label>
+            <input type="number" [(ngModel)]="valoresLogros[cat]" min="0"
+              class="w-20 p-1.5 rounded text-yellow-400 font-bold input-rol bg-neutral-900/80 text-center focus:border-yellow-500">
+          </div>
+        }
+      </div>
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-700">
+        <button (click)="cerrarModalLogros()" class="px-4 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="guardarLogros()" class="px-4 py-2 btn-medieval rounded font-bold"><i class="fa-solid fa-save mr-2"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+  <div class="flex items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+    <i class="fa-solid fa-gavel text-4xl text-yellow-600"></i>
+    <h3 class="text-3xl text-yellow-500 fuente-gremio">Consola de Maestros</h3>
+  </div>
+
+  <!-- Publicar noticia -->
+  <div class="bg-black/40 border border-yellow-700/50 p-6 rounded-lg mb-8">
+    <h4 class="text-xl text-yellow-500 mb-6 fuente-gremio border-b border-gray-700 pb-2"><i class="fa-solid fa-feather-pointed mr-2"></i>Publicar Noticia</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Título de la Noticia</label>
+        <input [(ngModel)]="noticiaTitle" type="text" placeholder="Ej: ¡Apertura del Tablón!" class="w-full p-2.5 rounded text-white input-rol">
+      </div>
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Imagen (Encuadre panorámico)</label>
+        <input type="file" accept="image/*" (change)="abrirRecorteNoticia($event)"
+          class="w-full p-2.5 rounded text-gray-300 input-rol file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-yellow-700 file:text-white hover:file:bg-yellow-600 cursor-pointer">
+        @if (imagenNoticia) {
+          <div class="mt-2 text-sm text-green-400"><i class="fa-solid fa-image mr-1"></i>Imagen lista para publicar</div>
+        }
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-gray-400 text-sm mb-1">Contenido del Anuncio</label>
+        <textarea [(ngModel)]="noticiaContent" rows="3" placeholder="Escribe aquí las novedades..." class="w-full p-2.5 rounded text-white input-rol"></textarea>
+      </div>
+    </div>
+    <div class="mt-6 flex items-center justify-end gap-4">
+      @if (mensajeNoticiaOk()) { <span class="text-green-400 text-sm"><i class="fa-solid fa-check mr-1"></i> Noticia publicada</span> }
+      <button (click)="crearNoticia()" class="px-6 py-2.5 btn-medieval rounded font-bold tracking-wide"><i class="fa-solid fa-bullhorn mr-2"></i> Enviar Mensaje</button>
+    </div>
+  </div>
+
+  <!-- Redactar misión -->
+  <div class="bg-black/40 border border-yellow-700/50 p-6 rounded-lg mb-8">
+    <h4 class="text-xl text-yellow-500 mb-6 fuente-gremio border-b border-gray-700 pb-2"><i class="fa-solid fa-scroll mr-2"></i>Redactar Nueva Misión</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Título de la Misión</label>
+        <input [(ngModel)]="misionTitulo" type="text" placeholder="Ej: Caza de Goblins" class="w-full p-2.5 rounded text-white input-rol">
+      </div>
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Dificultad</label>
+        <select [(ngModel)]="misionDificultad" class="w-full p-2.5 rounded text-white input-rol bg-neutral-900 cursor-pointer">
+          <option value="Fácil">Fácil (10 pts)</option>
+          <option value="Media">Media (25 pts)</option>
+          <option value="Difícil">Difícil (75 pts)</option>
+          <option value="Épica">Épica (250 pts)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Recompensa Extra (Opcional)</label>
+        <input [(ngModel)]="misionRecompensa" type="text" placeholder="Ej: 100 de Oro y 1 Poción" class="w-full p-2.5 rounded text-white input-rol">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-gray-400 text-sm mb-1">Descripción</label>
+        <textarea [(ngModel)]="misionDesc" rows="3" placeholder="Detalla la misión. TIP: Si escribes '15 Copper Ore', se sumará a los logros al completarla." class="w-full p-2.5 rounded text-white input-rol"></textarea>
+      </div>
+    </div>
+    <div class="mt-6 flex items-center justify-end gap-4">
+      @if (mensajeMisionOk()) { <span class="text-green-400 text-sm"><i class="fa-solid fa-check mr-1"></i> Misión clavada en el tablón</span> }
+      <button (click)="crearMision()" class="px-6 py-2.5 btn-medieval rounded font-bold tracking-wide"><i class="fa-solid fa-thumbtack mr-2"></i> Publicar Misión</button>
+    </div>
+  </div>
+
+  <!-- Gestión de roles -->
+  <div class="bg-black/40 border border-yellow-700/50 p-6 rounded-lg mt-8">
+    <h4 class="text-xl text-yellow-500 mb-6 fuente-gremio border-b border-gray-700 pb-2"><i class="fa-solid fa-users-gear mr-2"></i>Gestión de Roles</h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Buscar Aventurero</label>
+        <input [(ngModel)]="buscarRolNombre" list="lista-usuarios" placeholder="Escribe o selecciona..." class="w-full p-2.5 rounded text-white input-rol bg-neutral-900">
+        <datalist id="lista-usuarios">
+          @for (u of usuarios; track u.nombre) { <option [value]="u.nombre">Rol: {{ u.rol }}</option> }
+        </datalist>
+      </div>
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Asignar Rol</label>
+        <select [(ngModel)]="rolSeleccionado" class="w-full p-2.5 rounded text-white input-rol bg-neutral-900 cursor-pointer">
+          <option value="Aventurero">Aventurero (Quitar rol)</option>
+          <option value="Oficial">Oficial</option>
+          <option value="Ministro">Ministro</option>
+          <option value="Líder de facción">Líder de facción</option>
+          <option value="MOD">MOD (Admin Secundario)</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </div>
+      <div>
+        <button (click)="asignarRol()" class="w-full px-6 py-2.5 bg-neutral-800 border border-gray-600 text-white rounded hover:bg-neutral-700 transition font-bold tracking-wide"><i class="fa-solid fa-stamp mr-2"></i>Otorgar Rol</button>
+      </div>
+    </div>
+    @if (mensajeRol) {
+      <p [class]="'mt-4 text-sm bg-black/50 p-3 rounded border ' + mensajeRolColor">{{ mensajeRol }}</p>
+    }
+  </div>
+
+  <!-- Zona de peligro -->
+  <div class="bg-black/40 border border-red-700/50 p-6 rounded-lg mt-8">
+    <h4 class="text-xl text-red-500 mb-6 fuente-gremio border-b border-gray-700 pb-2"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Zona de Peligro (Cuentas y Logros)</h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Seleccionar Aventurero</label>
+        <input [(ngModel)]="buscarPeligroNombre" list="lista-usuarios" placeholder="Escribe o selecciona..." class="w-full p-2.5 rounded text-white input-rol bg-neutral-900 border-red-900/50 focus:border-red-500">
+      </div>
+      <div>
+        <button (click)="abrirModalLogros()" class="w-full px-6 py-2.5 bg-neutral-800 border border-yellow-600/50 text-yellow-400 rounded hover:bg-neutral-700 transition font-bold tracking-wide"><i class="fa-solid fa-wrench mr-2"></i>Retocar Logros</button>
+      </div>
+      <div>
+        <button (click)="eliminarAventurero()" class="w-full px-6 py-2.5 bg-red-900/60 border border-red-700 text-red-300 rounded hover:bg-red-800 transition font-bold tracking-wide"><i class="fa-solid fa-user-xmark mr-2"></i>Eliminar Cuenta</button>
+      </div>
+    </div>
+  </div>
+</div>

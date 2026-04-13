@@ -1,0 +1,101 @@
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { DbService } from '../../services/db.service';
+import { AuthService } from '../../services/auth.service';
+import { Usuario } from '../../models/models';
+import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango, colorRango } from '../../constants/rangos';
+import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
+
+@Component({
+  selector: 'app-seguimiento',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './seguimiento.component.html'
+})
+export class SeguimientoComponent implements OnInit, OnDestroy {
+  usuarios: Usuario[] = [];
+  private sub?: Subscription;
+
+  // Modal ajustar puntos
+  modalPuntos = signal(false);
+  nombreAjuste = '';
+  valorAjuste = 0;
+  colorRango = colorRango;
+
+  constructor(public auth: AuthService, private db: DbService) {}
+
+  ngOnInit(): void {
+    this.sub = this.db.getUsuarios$().subscribe(u => {
+      this.usuarios = u.sort((a, b) => b.puntos - a.puntos);
+    });
+  }
+
+  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+
+  abrirAjustePuntos(nombre: string): void {
+    this.nombreAjuste = nombre; this.valorAjuste = 0; this.modalPuntos.set(true);
+  }
+
+  cerrarAjustePuntos(): void { this.modalPuntos.set(false); this.nombreAjuste = ''; }
+
+  async confirmarAjuste(): Promise<void> {
+    if (isNaN(this.valorAjuste)) { alert('Introduce un número válido.'); return; }
+    const u = this.usuarios.find(x => x.nombre === this.nombreAjuste);
+    if (!u) return;
+    const puntos = Math.max(0, (u.puntos || 0) + this.valorAjuste);
+    const puntosSemanales = Math.max(0, (u.puntosSemanales || 0) + this.valorAjuste);
+    const rango = calcularRango(puntos, u.rol, u.nombre);
+    await this.db.actualizarUsuario(u.nombre, { puntos, puntosSemanales, rango });
+    const sesion = this.auth.usuario();
+    if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria({ ...sesion, puntos, puntosSemanales, rango });
+    this.cerrarAjustePuntos();
+  }
+
+  async completarMision(nombreAventurero: string): Promise<void> {
+    if (!confirm(`¿Confirmas que ${nombreAventurero} completó la misión? Se le otorgarán puntos y logros.`)) return;
+    const u = { ...this.usuarios.find(x => x.nombre === nombreAventurero)! };
+    if (!u || !u.misionActiva) return;
+
+    const dif = u.misionActiva.dificultad;
+    const pts = PUNTOS_DIFICULTAD[dif] || 10;
+    u.puntos = (u.puntos || 0) + pts;
+    u.puntosSemanales = (u.puntosSemanales || 0) + pts;
+    u.rango = calcularRango(u.puntos, u.rol, u.nombre);
+
+    // Cooldown
+    if (!u.cooldownsMisiones) u.cooldownsMisiones = {};
+    u.cooldownsMisiones[dif] = Date.now() + (COOLDOWNS_MS[dif] || 0);
+
+    // Anti-fardeo
+    if (!u.historialMisiones) u.historialMisiones = { 'Fácil': [], 'Media': [], 'Difícil': [], 'Épica': [] };
+    if (!u.historialMisiones[dif]) u.historialMisiones[dif] = [];
+    u.historialMisiones[dif].push(u.misionActiva.id);
+    const limite = LIMITE_HISTORIAL[dif] || 6;
+    if (u.historialMisiones[dif].length > limite) u.historialMisiones[dif].shift();
+
+    // Logros
+    if (!u.progresoLogros) u.progresoLogros = {};
+    u.progresoLogros['Misiones Totales'] = (u.progresoLogros['Misiones Totales'] || 0) + 1;
+    if (dif === 'Fácil') u.progresoLogros['Misiones Fáciles'] = (u.progresoLogros['Misiones Fáciles'] || 0) + 1;
+    if (dif === 'Media') u.progresoLogros['Misiones Medias'] = (u.progresoLogros['Misiones Medias'] || 0) + 1;
+    if (dif === 'Difícil') u.progresoLogros['Misiones Difíciles'] = (u.progresoLogros['Misiones Difíciles'] || 0) + 1;
+
+    // Parser mágico de recursos
+    const texto = ((u.misionActiva.titulo || '') + ' ' + (u.misionActiva.descripcion || '')).toLowerCase();
+    CATEGORIAS_RECURSOS.forEach(recurso => {
+      const regex = new RegExp(`(\\d+)\\s*(?:de\\s+|x\\s*)?${recurso.toLowerCase()}`, 'g');
+      let match;
+      while ((match = regex.exec(texto)) !== null) {
+        u.progresoLogros[recurso] = (u.progresoLogros[recurso] || 0) + parseInt(match[1], 10);
+      }
+    });
+
+    u.misionActiva = null;
+    await this.db.actualizarUsuario(u.nombre, u);
+    const sesion = this.auth.usuario();
+    if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria(u);
+    alert(`¡Misión completada! ${u.nombre} recibió ${pts} pts y los logros se actualizaron.`);
+  }
+}

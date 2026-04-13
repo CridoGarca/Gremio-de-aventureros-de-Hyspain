@@ -1,0 +1,56 @@
+<div class="w-full max-w-7xl mx-auto my-10 px-4 animate-[fadeIn_0.5s_ease-in-out]">
+
+  <!-- NAV -->
+  <nav class="flex flex-wrap justify-between items-center panel-cristal p-4 rounded-t-xl border-b-0">
+    <div class="flex items-center gap-3 mb-4 md:mb-0">
+      <img src="https://cdn-icons-png.flaticon.com/512/10512/10512613.png"
+        class="w-10 h-10 filter invert-[.8] sepia-[1] saturate-[5] hue-rotate-[3deg]">
+      <h2 class="text-2xl text-yellow-500 fuente-gremio font-bold tracking-wide hidden lg:block">Sede del Gremio</h2>
+    </div>
+    <div class="flex flex-wrap gap-2 md:gap-3 items-center text-sm md:text-base">
+      <a routerLink="/app/inicio" routerLinkActive="text-yellow-400 border-yellow-600/50"
+        class="px-3 py-2 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-transparent hover:border-yellow-600/50 transition">
+        <i class="fa-solid fa-house md:mr-2"></i><span class="hidden md:inline">Inicio</span></a>
+
+      <a routerLink="/app/perfil" routerLinkActive="text-yellow-400 border-yellow-600/50"
+        class="px-3 py-2 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-transparent hover:border-yellow-600/50 transition">
+        <i class="fa-solid fa-address-card md:mr-2"></i><span class="hidden md:inline">Perfil</span></a>
+
+      <a routerLink="/app/misiones" routerLinkActive="text-yellow-400 border-yellow-600/50"
+        class="px-3 py-2 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-transparent hover:border-yellow-600/50 transition">
+        <i class="fa-solid fa-scroll md:mr-2"></i><span class="hidden md:inline">Tablón</span></a>
+
+      <a routerLink="/app/ranking-global" routerLinkActive="text-yellow-400 border-yellow-600/50"
+        class="px-3 py-2 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-transparent hover:border-yellow-600/50 transition">
+        <i class="fa-solid fa-globe md:mr-2"></i><span class="hidden xl:inline">Global</span></a>
+
+      <a routerLink="/app/ranking-semanal" routerLinkActive="text-yellow-400 border-yellow-600/50"
+        class="px-3 py-2 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-transparent hover:border-yellow-600/50 transition">
+        <i class="fa-solid fa-hourglass-half md:mr-2"></i><span class="hidden xl:inline">Semanal</span></a>
+
+      <a routerLink="/app/logros" routerLinkActive="text-yellow-400 border-yellow-600/50"
+        class="px-3 py-2 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-transparent hover:border-yellow-600/50 transition">
+        <i class="fa-solid fa-award md:mr-2"></i><span class="hidden md:inline">Logros</span></a>
+
+      @if (auth.esAdmin()) {
+        <a routerLink="/app/admin" routerLinkActive="bg-yellow-800/60"
+          class="px-3 py-2 bg-yellow-900/40 text-yellow-400 font-bold rounded border border-yellow-600 shadow-[0_0_8px_rgba(212,175,55,0.4)] hover:bg-yellow-800/60 transition ml-2">
+          <i class="fa-solid fa-gavel mr-2"></i><span class="hidden md:inline">Consola</span></a>
+
+        <a routerLink="/app/seguimiento" routerLinkActive="bg-purple-800/60"
+          class="px-3 py-2 bg-purple-900/40 text-purple-400 font-bold rounded border border-purple-600 shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:bg-purple-800/60 transition">
+          <i class="fa-solid fa-eye mr-2"></i><span class="hidden md:inline">Seguimiento</span></a>
+      }
+
+      <button (click)="auth.cerrarSesion()"
+        class="px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition ml-2 border border-red-900/50">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="panel-cristal p-4 md:p-8 rounded-b-xl min-h-[500px]">
+    <router-outlet />
+  </div>
+</div>

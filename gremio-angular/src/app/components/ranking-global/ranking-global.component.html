@@ -1,0 +1,68 @@
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+  <div class="flex items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+    <i class="fa-solid fa-globe text-4xl text-yellow-600"></i>
+    <h3 class="text-3xl text-yellow-500 fuente-gremio">Salón de la Fama</h3>
+  </div>
+  <p class="text-sm text-gray-400 mb-8">Los aventureros más formidables en toda la historia de Orbis.</p>
+
+  <!-- Podio -->
+  @if (clasificados.length === 0) {
+    <div class="p-4 text-center text-gray-500">Aún no hay aventureros para clasificar.</div>
+  } @else {
+    <div class="flex justify-center items-end gap-2 md:gap-6 mb-10">
+      @for (u of podio; track $index) {
+        @if (u) {
+          <div class="flex flex-col items-center justify-end w-28 md:w-40 animate-[fadeIn_0.5s_ease-in-out]">
+            <div class="relative z-10 -mb-6 md:-mb-8">
+              <img [src]="u.foto || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'"
+                [class]="podioClases($index).img + ' rounded-full border-4 ' + podioClases($index).borde + ' object-cover bg-black shadow-[0_5px_15px_rgba(0,0,0,0.8)]'">
+              <div [class]="'absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-black/80 rounded-full px-2 py-0.5 border border-gray-800 text-sm md:text-base ' + podioClases($index).icono">
+                <i [class]="'fa-solid ' + ($index === 1 ? 'fa-trophy' : 'fa-medal')"></i>
+              </div>
+            </div>
+            <div [class]="'w-full flex flex-col items-center justify-end rounded-t-xl border-t border-l border-r p-2 pb-3 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] ' + podioClases($index).caja">
+              <div [class]="podioClases($index).texto + ' font-bold text-white truncate w-full text-center fuente-gremio drop-shadow-md'">{{ u.nombre }}</div>
+              <div [class]="colorRango(u.rango) + ' text-xs md:text-sm font-bold mb-1'">{{ u.rango }}</div>
+              <div class="font-black text-white bg-black/60 px-2 py-1 rounded w-full text-center border border-gray-700/50 text-sm shadow-inner">{{ u.puntos }} pts</div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Tabla resto -->
+    @if (resto.length > 0) {
+      <div class="overflow-x-auto tabla-scroll rounded-lg border border-yellow-700/30 bg-black/40">
+        <table class="w-full text-left text-sm text-gray-300 min-w-[600px]">
+          <thead class="bg-neutral-800/80 text-yellow-500 border-b border-yellow-700/50">
+            <tr>
+              <th class="p-4 text-center w-16">#</th>
+              <th class="p-4">Aventurero</th>
+              <th class="p-4 text-center">Rango</th>
+              <th class="p-4 text-center">Puntos Totales</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of resto; track u.nombre; let i = $index) {
+              <tr class="border-b border-gray-800 hover:bg-neutral-800/50 transition">
+                <td class="p-4 text-center w-16 font-bold text-gray-500">#{{ i + 4 }}</td>
+                <td class="p-4">
+                  <div class="flex items-center gap-3">
+                    <img [src]="u.foto || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'"
+                      class="w-10 h-10 rounded-full border border-gray-700/50 object-cover bg-black">
+                    <div>
+                      <div class="font-bold text-gray-300">{{ u.nombre }}</div>
+                      <div class="text-xs text-gray-500">{{ u.faccion || 'Sin facción' }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-4 text-center"><span [class]="colorRango(u.rango) + ' font-bold text-lg'">{{ u.rango }}</span></td>
+                <td class="p-4 text-center font-bold text-white">{{ u.puntos }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

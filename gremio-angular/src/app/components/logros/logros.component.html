@@ -1,0 +1,102 @@
+<!-- Modal editar logro -->
+@if (modalEditar()) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-md border border-purple-600/50">
+      <h3 class="text-2xl text-purple-400 fuente-gremio mb-2"><i class="fa-solid fa-medal mr-2"></i>Editar Recompensa</h3>
+      <p class="text-white font-bold mb-4 text-lg border-b border-gray-700 pb-2">{{ editLogroNombre }}</p>
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Recompensa Otorgada</label>
+        <input [(ngModel)]="editRecompensa" type="text" placeholder="Ej: 1.000 Oro y un Título..."
+          class="w-full p-3 rounded text-white input-rol bg-black/50 focus:border-purple-500">
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button (click)="cerrarEditarLogro()" class="px-4 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="guardarLogro()" class="px-4 py-2 bg-purple-900/60 border border-purple-600 text-purple-300 hover:bg-purple-800/80 rounded font-bold transition">
+          <i class="fa-solid fa-save mr-2"></i>Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+  <div class="flex items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+    <i class="fa-solid fa-award text-4xl text-yellow-600"></i>
+    <h3 class="text-3xl text-yellow-500 fuente-gremio">Registro de Logros</h3>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex flex-wrap gap-4 mb-6 border-b border-gray-700/50 pb-4">
+    <button (click)="cambiarTab('personales')"
+      [class]="tabActivo() === 'personales' ? 'px-5 py-2.5 bg-yellow-900/60 text-yellow-400 font-bold rounded border border-yellow-600 shadow-[0_0_8px_rgba(212,175,55,0.4)] transition' : 'px-5 py-2.5 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-gray-700 hover:border-yellow-600/50 transition'">
+      <i class="fa-solid fa-bullseye mr-2"></i>Mis Logros (Progreso)
+    </button>
+    <button (click)="cambiarTab('catalogo')"
+      [class]="tabActivo() === 'catalogo' ? 'px-5 py-2.5 bg-yellow-900/60 text-yellow-400 font-bold rounded border border-yellow-600 shadow-[0_0_8px_rgba(212,175,55,0.4)] transition' : 'px-5 py-2.5 bg-black/40 text-gray-300 hover:text-yellow-400 rounded border border-gray-700 hover:border-yellow-600/50 transition'">
+      <i class="fa-solid fa-book-open mr-2"></i>Catálogo del Gremio
+    </button>
+  </div>
+
+  <!-- Personales -->
+  @if (tabActivo() === 'personales') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (l of logrosPersonales; track l.categoria) {
+        <div [class]="'bg-gradient-to-br ' + l.tema.card + ' border rounded-lg p-5 flex flex-col shadow-md transition relative overflow-hidden'">
+          <i [class]="'fa-solid ' + l.icon + ' absolute -bottom-4 -right-4 text-7xl opacity-5 transform -rotate-12 pointer-events-none z-0'"></i>
+          <div class="flex items-center gap-4 mb-4 relative z-10">
+            <div [class]="'w-12 h-12 shrink-0 rounded-full bg-neutral-900/80 border border-gray-600 flex items-center justify-center text-xl shadow-inner ' + l.tema.text">
+              <i [class]="'fa-solid ' + l.icon"></i>
+            </div>
+            <div class="pr-2">
+              <h4 [class]="l.tema.text + ' font-bold text-xs uppercase tracking-wider drop-shadow-sm'">{{ l.categoria }}</h4>
+              <p class="text-white font-bold text-lg leading-tight drop-shadow-md">{{ l.nivelNombre }}</p>
+            </div>
+          </div>
+          <div class="mt-auto relative z-10">
+            <div class="flex justify-between items-end mb-1">
+              @if (l.completado) {
+                <span class="text-green-400 font-bold text-xs uppercase"><i class="fa-solid fa-check-double mr-1"></i>Maestría Máxima</span>
+              } @else {
+                <span class="text-gray-400 text-xs">{{ l.cantidad }} / {{ l.nivelReq }}</span>
+              }
+              <span [class]="'text-xs font-bold ' + l.tema.text">{{ l.porcentaje }}%</span>
+            </div>
+            <div class="w-full bg-neutral-900 rounded-full h-2.5 border border-gray-700 overflow-hidden">
+              <div [class]="'h-2.5 rounded-full bg-current opacity-80 ' + l.tema.text" [style.width.%]="l.porcentaje"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Catálogo -->
+  @if (tabActivo() === 'catalogo') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      @for (l of logrosCatalogo; track l.id) {
+        <div [class]="'bg-gradient-to-br ' + temaLogro(l.recurso).card + ' border rounded-lg p-4 relative transition flex flex-col shadow-md overflow-hidden'">
+          <i [class]="'fa-solid ' + l.icono + ' absolute -bottom-4 -right-4 text-6xl opacity-5 transform -rotate-12 pointer-events-none z-0'"></i>
+          @if (auth.esAdmin()) {
+            <button (click)="abrirEditarLogro(l)"
+              class="absolute top-3 right-3 text-white hover:text-gray-300 transition bg-black/50 p-1.5 rounded z-10">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          }
+          <div class="flex items-center gap-4 mb-3 relative z-10">
+            <div [class]="'w-12 h-12 shrink-0 rounded-full bg-neutral-900/80 border border-gray-600 flex items-center justify-center text-xl shadow-inner ' + temaLogro(l.recurso).text">
+              <i [class]="'fa-solid ' + l.icono"></i>
+            </div>
+            <div class="pr-8">
+              <h4 class="text-base text-white font-bold leading-tight drop-shadow-md">{{ l.nombre }}</h4>
+              <span class="text-xs text-gray-400">{{ l.recurso }}: <span [class]="'font-bold ' + temaLogro(l.recurso).text">{{ l.requisito }}</span></span>
+            </div>
+          </div>
+          <div class="mt-auto pt-3 border-t border-gray-700/50 relative z-10">
+            <span [class]="'text-xs font-bold block mb-1 uppercase tracking-wider drop-shadow-sm ' + temaLogro(l.recurso).text">Recompensa:</span>
+            <span class="text-sm text-gray-300">{{ l.recompensa }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

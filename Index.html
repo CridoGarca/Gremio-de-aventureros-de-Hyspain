@@ -1673,5 +1673,24 @@
             if (sesion) { entrarAlGremio(JSON.parse(sesion)); }
         };
     </script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQrnkiX1one2C0GeQ3uz9ZC8VTHYxXunM",
+            authDomain: "gremio-de-aventureros-226fc.firebaseapp.com",
+            projectId: "gremio-de-aventureros-226fc",
+            storageBucket: "gremio-de-aventureros-226fc.firebasestorage.app",
+            messagingSenderId: "553831511269",
+            appId: "1:553831511269:web:1220abff2893cab310500c",
+            measurementId: "G-P0V74QWQLQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>

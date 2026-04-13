@@ -1,0 +1,52 @@
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+  <!-- Banner de bienvenida -->
+  <div class="bg-black/40 border border-yellow-700/30 p-8 rounded-lg mb-8 text-center relative overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+    <h2 class="text-4xl text-yellow-500 fuente-gremio font-bold mb-6 drop-shadow-lg">¡Bienvenid&#64;s, aventurer&#64;s!</h2>
+    <p class="text-lg text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed">
+      En esta web podrás seguir y controlar tu avance dentro del gremio. Explora los diferentes apartados,
+      completa tu perfil y añade tu foto para mejorar tu presencia en el ranking.
+    </p>
+    <p class="text-lg text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
+      Compite con el resto de aventureros, asciende posiciones y demuestra tu valía.
+    </p>
+    <div class="inline-block border-y border-yellow-700/50 py-5 px-10 bg-black/60 rounded">
+      <p class="text-sm text-gray-400 mb-2 uppercase tracking-widest">Recuerda siempre nuestro lema:</p>
+      <p class="text-2xl text-yellow-400 fuente-gremio italic font-bold tracking-wide">"Nuestra espada no tiene bando, nuestra palabra no tiene precio."</p>
+    </div>
+  </div>
+
+  <!-- Noticias -->
+  <div class="flex items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+    <i class="fa-solid fa-bullhorn text-4xl text-yellow-600"></i>
+    <h3 class="text-3xl text-yellow-500 fuente-gremio">Noticias del Gremio</h3>
+  </div>
+
+  @if (noticias.length === 0) {
+    <div class="p-6 bg-black/40 border border-gray-700 rounded-lg text-center">
+      <p class="text-gray-400">Aún no hay noticias publicadas en el gremio.</p>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (n of noticias; track n.id) {
+      <div class="bg-black/50 border border-yellow-900/30 rounded-lg relative hover:border-yellow-700/50 transition shadow-[0_0_10px_rgba(0,0,0,0.3)] flex flex-col h-full overflow-hidden">
+        @if (auth.esAdmin()) {
+          <button (click)="eliminarNoticia(n.id)"
+            class="absolute top-2 right-2 text-red-100 bg-red-600/80 hover:bg-red-600 p-2 rounded-full transition z-10"
+            title="Eliminar noticia">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        }
+        @if (n.imagen) {
+          <img [src]="n.imagen" alt="Imagen noticia" class="w-full h-48 object-cover rounded-t-lg border-b border-gray-700/50">
+        }
+        <div class="p-5 flex flex-col flex-grow">
+          <h4 class="text-xl text-yellow-500 fuente-gremio font-bold pr-8 leading-tight mb-2">{{ n.titulo }}</h4>
+          <span class="text-xs text-gray-500 mb-4"><i class="fa-regular fa-calendar mr-2"></i>{{ n.fecha }}</span>
+          <p class="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed flex-grow">{{ n.contenido }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

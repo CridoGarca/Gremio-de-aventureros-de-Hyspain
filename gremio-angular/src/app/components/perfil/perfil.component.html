@@ -1,0 +1,103 @@
+<!-- Modal de recorte -->
+@if (mostrarModal()) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-lg border border-yellow-600/50">
+      <h3 class="text-2xl text-yellow-500 fuente-gremio mb-4 border-b border-yellow-700/30 pb-2">
+        <i class="fa-solid fa-crop-simple mr-2"></i>Encuadra la Imagen
+      </h3>
+      <div class="img-container bg-black border border-gray-700 mb-4 rounded flex justify-center items-center">
+        <img #imgRecorte [src]="imgSrc" style="max-width:100%">
+      </div>
+      <div class="flex justify-end gap-3 mt-4">
+        <button (click)="cancelarRecorte()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="confirmarRecorte()" class="px-5 py-2 btn-medieval rounded font-bold">
+          <i class="fa-solid fa-check mr-2"></i>Confirmar Recorte
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Vista perfil -->
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+  <div class="flex items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+    <i class="fa-solid fa-user-shield text-4xl text-yellow-600"></i>
+    <h3 class="text-3xl text-yellow-500 fuente-gremio">Ficha de Aventurero</h3>
+  </div>
+
+  @if (auth.usuario(); as u) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Tarjeta -->
+      <div class="col-span-1 bg-black/40 border border-yellow-700/30 p-6 rounded-lg flex flex-col items-center">
+        <div class="w-36 h-36 rounded-full border-4 border-yellow-600 overflow-hidden mb-4 shadow-[0_0_15px_rgba(212,175,55,0.4)] bg-neutral-800">
+          <img [src]="fotoTemporal || u.foto" alt="Retrato" class="w-full h-full object-cover bg-black">
+        </div>
+        <h4 class="text-2xl text-yellow-400 font-bold mb-1 fuente-gremio text-center">{{ u.nombre }}</h4>
+        @if (u.rol && u.rol !== 'Aventurero' && u.rol !== 'ADMIN') {
+          <div class="mb-4 text-center w-full">
+            <span class="etiqueta-rol"><i class="fa-solid fa-star text-yellow-600 mr-1"></i>{{ u.rol }}</span>
+          </div>
+        }
+        <div class="w-full bg-black/50 p-4 rounded border border-gray-700 space-y-3 mt-2">
+          <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+            <span class="text-gray-400 text-sm"><i class="fa-solid fa-medal text-yellow-500 w-5"></i> Rango</span>
+            <span [class]="colorRango(u.rango) + ' text-lg drop-shadow-[0_0_5px_rgba(212,175,55,0.5)]'">{{ u.rango }}</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+            <span class="text-gray-400 text-sm"><i class="fa-solid fa-star text-yellow-500 w-5"></i> Puntos</span>
+            <span class="font-bold text-white">{{ u.puntos }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-gray-400 text-sm"><i class="fa-solid fa-calendar-week text-yellow-500 w-5"></i> P. Semanales</span>
+            <span class="font-bold text-white">{{ u.puntosSemanales }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="col-span-1 md:col-span-2 bg-black/40 border border-gray-700/50 p-6 rounded-lg">
+        <h4 class="text-xl text-yellow-500 mb-6 fuente-gremio border-b border-gray-700 pb-2">
+          <i class="fa-solid fa-pen mr-2"></i>Editar Información
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-gray-400 text-sm mb-1">Nombre de Aventurero</label>
+            <input [(ngModel)]="editNombre" type="text" class="w-full p-2.5 rounded text-white input-rol">
+          </div>
+          <div>
+            <label class="block text-gray-400 text-sm mb-1">Contraseña</label>
+            <div class="relative">
+              <input [(ngModel)]="editPassword" [type]="mostrarPassword ? 'text' : 'password'"
+                class="w-full p-2.5 pr-10 rounded text-white input-rol">
+              <button type="button" (click)="togglePassword()"
+                class="absolute right-3 top-3 text-gray-400 hover:text-yellow-400 transition">
+                <i [class]="'fa-solid ' + (mostrarPassword ? 'fa-eye-slash' : 'fa-eye')"></i>
+              </button>
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-400 text-sm mb-1">Retrato (Sube y encuadra una imagen)</label>
+            <input type="file" accept="image/*" (change)="abrirRecorte($event)"
+              class="w-full p-2.5 rounded text-gray-300 input-rol file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-yellow-700 file:text-white hover:file:bg-yellow-600 cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-gray-400 text-sm mb-1">Raza (Libre)</label>
+            <input [(ngModel)]="editRaza" type="text" placeholder="Ej: Humano, Elfo..." class="w-full p-2.5 rounded text-white input-rol">
+          </div>
+          <div>
+            <label class="block text-gray-400 text-sm mb-1">Facción (Libre)</label>
+            <input [(ngModel)]="editFaccion" type="text" placeholder="Ej: Exploradores..." class="w-full p-2.5 rounded text-white input-rol">
+          </div>
+        </div>
+        <div class="mt-8 flex items-center justify-end gap-4">
+          @if (mensajeOk()) {
+            <span class="text-green-400 text-sm"><i class="fa-solid fa-check mr-1"></i> Ficha sellada y actualizada</span>
+          }
+          <button (click)="guardarPerfil()" class="px-6 py-2.5 btn-medieval rounded font-bold tracking-wide">
+            <i class="fa-solid fa-stamp mr-2"></i> Actualizar Ficha
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

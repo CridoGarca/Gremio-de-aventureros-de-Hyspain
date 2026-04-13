@@ -1,0 +1,34 @@
+import { Routes } from '@angular/router';
+import { authGuard, adminGuard } from './guards/guards';
+import { LoginComponent } from './components/login/login.component';
+import { LayoutComponent } from './components/layout/layout.component';
+import { InicioComponent } from './components/inicio/inicio.component';
+import { PerfilComponent } from './components/perfil/perfil.component';
+import { MisionesComponent } from './components/misiones/misiones.component';
+import { RankingGlobalComponent } from './components/ranking-global/ranking-global.component';
+import { RankingSemanalComponent } from './components/ranking-semanal/ranking-semanal.component';
+import { LogrosComponent } from './components/logros/logros.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
+
+export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  {
+    path: 'app',
+    component: LayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: 'inicio', component: InicioComponent },
+      { path: 'perfil', component: PerfilComponent },
+      { path: 'misiones', component: MisionesComponent },
+      { path: 'ranking-global', component: RankingGlobalComponent },
+      { path: 'ranking-semanal', component: RankingSemanalComponent },
+      { path: 'logros', component: LogrosComponent },
+      { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
+      { path: 'seguimiento', component: SeguimientoComponent, canActivate: [adminGuard] },
+      { path: '', redirectTo: 'inicio', pathMatch: 'full' }
+    ]
+  },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '**', redirectTo: '/login' }
+];
