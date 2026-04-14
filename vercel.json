@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd gremio-angular && npm install && npm run build",
+  "outputDirectory": "gremio-angular/dist/gremio-angular/browser",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
