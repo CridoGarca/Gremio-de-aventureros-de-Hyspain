@@ -6,7 +6,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Usuario, Mision, Noticia, Logro } from '../models/models';
+import { Usuario, Mision, Noticia, Logro, Dificultad } from '../models/models';
 import { DATA_BRUTA } from '../constants/logros-data';
 import { FIRESTORE_TOKEN } from './firestore.token';
 
@@ -24,7 +24,7 @@ export class DbService {
   }
 
   async inicializar(): Promise<void> {
-    await Promise.all([this.inicializarAdmin(), this.inicializarLogros()]);
+    await Promise.all([this.inicializarAdmin(), this.inicializarLogros(), this.inicializarDificultades()]);
     await this.checkResetSemanal();
   }
 
@@ -41,6 +41,20 @@ export class DbService {
         historialMisiones: { 'FÃ¡cil': [], 'Media': [], 'DifÃ­cil': [], 'Ã‰pica': [] }
       });
     }
+  }
+
+  private async inicializarDificultades(): Promise<void> {
+    const snap = await getDocs(collection(this.fs, 'dificultades'));
+    if (!snap.empty) return;
+    const defaults: Dificultad[] = [
+      { nombre: 'Fácil', puntos: 10, orden: 1 },
+      { nombre: 'Media', puntos: 25, orden: 2 },
+      { nombre: 'Difícil', puntos: 75, orden: 3 },
+      { nombre: 'Épica', puntos: 250, orden: 4 },
+    ];
+    const batch = writeBatch(this.fs);
+    defaults.forEach(d => batch.set(doc(this.fs, 'dificultades', d.nombre), d));
+    await batch.commit();
   }
 
   private async inicializarLogros(): Promise<void> {
@@ -155,6 +169,25 @@ export class DbService {
 
   async actualizarLogro(id: string, recompensa: string): Promise<void> {
     await updateDoc(doc(this.fs, 'logros', id), { recompensa });
+  }
+
+  // ── Dificultades ──────────────────────────────────────────
+  getDificultades$(): Observable<Dificultad[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'dificultades'), orderBy('orden', 'asc')),
+        snap => obs.next(snap.docs.map(d => d.data() as Dificultad)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearDificultad(d: Dificultad): Promise<void> {
+    await setDoc(doc(this.fs, 'dificultades', d.nombre), d);
+  }
+
+  async eliminarDificultad(nombre: string): Promise<void> {
+    await deleteDoc(doc(this.fs, 'dificultades', nombre));
   }
 }
 

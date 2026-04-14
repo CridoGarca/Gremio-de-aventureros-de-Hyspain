@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import Cropper from 'cropperjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Usuario } from '../../models/models';
+import { Usuario, Dificultad } from '../../models/models';
 import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
 import { DATA_BRUTA } from '../../constants/logros-data';
 
@@ -21,6 +21,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   private sub?: Subscription;
 
   usuarios: Usuario[] = [];
+  dificultades: Dificultad[] = [];
 
   // Noticia
   noticiaTitle = ''; noticiaContent = ''; imagenNoticia = ''; imgSrc = '';
@@ -29,6 +30,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   // Misión
   misionTitulo = ''; misionDificultad = 'Fácil'; misionRecompensa = ''; misionDesc = '';
   mensajeMisionOk = signal(false);
+
+  // Nueva dificultad
+  nuevaDifNombre = ''; nuevaDifPuntos = 10;
+  mensajeDifOk = signal(false); mensajeDifError = '';
 
   // Roles
   buscarRolNombre = ''; rolSeleccionado = 'Aventurero'; mensajeRol = ''; mensajeRolColor = '';
@@ -46,6 +51,12 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.db.getUsuarios$().subscribe(u => this.usuarios = u.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    this.db.getDificultades$().subscribe(d => {
+      this.dificultades = d;
+      if (d.length && !d.find(x => x.nombre === this.misionDificultad)) {
+        this.misionDificultad = d[0].nombre;
+      }
+    });
   }
   ngOnDestroy(): void { this.sub?.unsubscribe(); }
 
@@ -84,6 +95,24 @@ export class AdminComponent implements OnInit, OnDestroy {
     await this.db.crearNoticia({ id: Date.now(), titulo: this.noticiaTitle.trim(), contenido: this.noticiaContent.trim(), fecha, imagen: this.imagenNoticia || null });
     this.noticiaTitle = ''; this.noticiaContent = ''; this.imagenNoticia = '';
     this.mensajeNoticiaOk.set(true); setTimeout(() => this.mensajeNoticiaOk.set(false), 3000);
+  }
+
+  // ── Dificultades ──────────────────────────────────────────
+  async crearDificultadPersonalizada(): Promise<void> {
+    const nombre = this.nuevaDifNombre.trim();
+    if (!nombre) { this.mensajeDifError = 'Escribe un nombre.'; return; }
+    if (this.dificultades.find(d => d.nombre.toLowerCase() === nombre.toLowerCase())) {
+      this.mensajeDifError = 'Ya existe esa dificultad.'; return;
+    }
+    const orden = this.dificultades.length > 0 ? Math.max(...this.dificultades.map(d => d.orden)) + 1 : 1;
+    await this.db.crearDificultad({ nombre, puntos: this.nuevaDifPuntos, orden });
+    this.nuevaDifNombre = ''; this.nuevaDifPuntos = 10; this.mensajeDifError = '';
+    this.mensajeDifOk.set(true); setTimeout(() => this.mensajeDifOk.set(false), 3000);
+  }
+
+  async eliminarDificultadPersonalizada(nombre: string): Promise<void> {
+    if (!confirm(`¿Eliminar la dificultad "${nombre}"? Las misiones existentes con esta dificultad no se borran pero dejarán de mostrar puntos correctamente.`)) return;
+    await this.db.eliminarDificultad(nombre);
   }
 
   // ── Misiones ──────────────────────────────────────────────

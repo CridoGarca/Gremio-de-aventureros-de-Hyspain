@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Usuario } from '../../models/models';
+import { Usuario, Dificultad } from '../../models/models';
 import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango, colorRango } from '../../constants/rangos';
 import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
 
@@ -16,6 +16,7 @@ import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
 })
 export class SeguimientoComponent implements OnInit, OnDestroy {
   usuarios: Usuario[] = [];
+  private dificultadesMap: { [key: string]: number } = {};
   private sub?: Subscription;
 
   // Modal ajustar puntos
@@ -29,6 +30,10 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sub = this.db.getUsuarios$().subscribe(u => {
       this.usuarios = u.sort((a, b) => b.puntos - a.puntos);
+    });
+    this.db.getDificultades$().subscribe(d => {
+      this.dificultadesMap = {};
+      d.forEach(x => this.dificultadesMap[x.nombre] = x.puntos);
     });
   }
 
@@ -59,7 +64,7 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
     if (!u || !u.misionActiva) return;
 
     const dif = u.misionActiva.dificultad;
-    const pts = PUNTOS_DIFICULTAD[dif] || 10;
+    const pts = this.dificultadesMap[dif] ?? PUNTOS_DIFICULTAD[dif] ?? 10;
     u.puntos = (u.puntos || 0) + pts;
     u.puntosSemanales = (u.puntosSemanales || 0) + pts;
     u.rango = calcularRango(u.puntos, u.rol, u.nombre);

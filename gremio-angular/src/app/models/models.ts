@@ -46,3 +46,9 @@ export interface Logro {
   requisito: string;
   recompensa: string;
 }
+
+export interface Dificultad {
+  nombre: string;
+  puntos: number;
+  orden: number;
+}

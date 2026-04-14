@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Mision } from '../../models/models';
+import { Mision, Dificultad } from '../../models/models';
 import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from '../../constants/rangos';
 
 @Component({
@@ -15,22 +15,27 @@ import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from
 })
 export class MisionesComponent implements OnInit, OnDestroy {
   misiones: Mision[] = [];
+  dificultades: Dificultad[] = [];
   private sub?: Subscription;
+  private subDif?: Subscription;
 
   // Modal editar misión
   modalEditar = signal(false);
   editId: number | null = null;
   editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editDescripcion = '';
 
-  puntosDificultad = PUNTOS_DIFICULTAD;
+  puntosDificultad(dif: string): number {
+    return this.dificultades.find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
+  }
 
   constructor(public auth: AuthService, private db: DbService) {}
 
   ngOnInit(): void {
     this.sub = this.db.getMisiones$().subscribe(m => this.misiones = m);
+    this.subDif = this.db.getDificultades$().subscribe(d => this.dificultades = d);
   }
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  ngOnDestroy(): void { this.sub?.unsubscribe(); this.subDif?.unsubscribe(); }
 
   colorDificultad(d: string): string {
     if (d === 'Fácil') return 'text-green-400';
