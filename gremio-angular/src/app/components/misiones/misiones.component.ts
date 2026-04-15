@@ -31,7 +31,7 @@ export class MisionesComponent implements OnInit, OnDestroy {
   constructor(public auth: AuthService, private db: DbService) {}
 
   ngOnInit(): void {
-    this.sub = this.db.getMisiones$().subscribe(m => this.misiones = m);
+    this.sub = this.db.getMisiones$().subscribe({ next: m => this.misiones = m, error: e => console.error('Error cargando misiones:', e) });
     this.subDif = this.db.getDificultades$().subscribe(d => this.dificultades = d);
   }
 

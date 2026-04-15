@@ -118,8 +118,8 @@ export class DbService {
   getMisiones$(): Observable<Mision[]> {
     return new Observable(obs => {
       const unsub = onSnapshot(
-        query(collection(this.fs, 'misiones'), orderBy('id', 'desc')),
-        snap => obs.next(snap.docs.map(d => d.data() as Mision)),
+        collection(this.fs, 'misiones'),
+        snap => obs.next(snap.docs.map(d => d.data() as Mision).sort((a, b) => b.id - a.id)),
         err => obs.error(err));
       return () => unsub();
     });
