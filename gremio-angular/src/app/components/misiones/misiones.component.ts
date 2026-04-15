@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Mision, Dificultad } from '../../models/models';
+import { Mision } from '../../models/models';
 import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from '../../constants/rangos';
 
 @Component({
@@ -13,11 +14,19 @@ import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from
   imports: [CommonModule, FormsModule],
   templateUrl: './misiones.component.html'
 })
-export class MisionesComponent implements OnInit, OnDestroy {
-  misiones: Mision[] = [];
-  dificultades: Dificultad[] = [];
-  private sub?: Subscription;
-  private subDif?: Subscription;
+export class MisionesComponent {
+  private db = inject(DbService);
+  auth = inject(AuthService);
+
+  misiones = toSignal(
+    this.db.getMisiones$().pipe(catchError(e => { console.error('Error cargando misiones:', e); return of([]); })),
+    { initialValue: [] as Mision[] }
+  );
+
+  dificultades = toSignal(
+    this.db.getDificultades$().pipe(catchError(e => { console.error('Error cargando dificultades:', e); return of([]); })),
+    { initialValue: [] }
+  );
 
   // Modal editar misión
   modalEditar = signal(false);
@@ -25,17 +34,8 @@ export class MisionesComponent implements OnInit, OnDestroy {
   editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editDescripcion = '';
 
   puntosDificultad(dif: string): number {
-    return this.dificultades.find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
+    return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
   }
-
-  constructor(public auth: AuthService, private db: DbService) {}
-
-  ngOnInit(): void {
-    this.sub = this.db.getMisiones$().subscribe({ next: m => this.misiones = m, error: e => console.error('Error cargando misiones:', e) });
-    this.subDif = this.db.getDificultades$().subscribe(d => this.dificultades = d);
-  }
-
-  ngOnDestroy(): void { this.sub?.unsubscribe(); this.subDif?.unsubscribe(); }
 
   colorDificultad(d: string): string {
     if (d === 'Fácil') return 'text-green-400';

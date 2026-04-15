@@ -13,7 +13,7 @@
         <div>
           <label class="block text-gray-400 text-sm mb-1">Dificultad</label>
           <select [(ngModel)]="editDificultad" class="w-full p-2.5 rounded text-white input-rol bg-neutral-900 cursor-pointer">
-            @for (d of dificultades; track d.nombre) {
+            @for (d of dificultades(); track d.nombre) {
               <option [value]="d.nombre">{{ d.nombre }} ({{ d.puntos }} pts)</option>
             }
           </select>
@@ -44,14 +44,14 @@
     <h3 class="text-3xl text-yellow-500 fuente-gremio">Tablón de Solicitudes</h3>
   </div>
 
-  @if (misiones.length === 0) {
+  @if (misiones().length === 0) {
     <div class="p-6 bg-black/40 border border-gray-700 rounded-lg text-center">
       <p class="text-gray-400">El tablón está vacío.</p>
     </div>
   }
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-    @for (m of misiones; track m.id) {
+    @for (m of misiones(); track m.id) {
       <div class="pergamino-mision p-5 pt-8 rounded relative flex flex-col hover:border-yellow-600 transition-colors duration-300">
         @if (auth.esAdmin()) {
           <div class="absolute top-3 right-3 flex gap-3 z-10">
