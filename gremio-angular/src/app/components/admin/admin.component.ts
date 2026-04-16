@@ -145,6 +145,14 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   // ── Peligro: eliminar cuenta ─────────────────────────────
+  get usuariosPendientesXP(): typeof this.usuarios {
+    return this.usuarios.filter(u => u.xpPendienteEntrega);
+  }
+
+  async marcarXpEntregada(nombre: string): Promise<void> {
+    await this.db.actualizarUsuario(nombre, { xpPendienteEntrega: null });
+  }
+
   async eliminarAventurero(): Promise<void> {
     const nombre = this.buscarPeligroNombre.trim();
     if (!nombre) { alert('Selecciona un aventurero primero.'); return; }

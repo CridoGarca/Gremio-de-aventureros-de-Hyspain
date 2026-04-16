@@ -7,6 +7,12 @@ export interface MisionActiva {
   descripcion: string;
 }
 
+export interface XpPendiente {
+  mision: string;
+  puntos: number;
+  fecha: number;
+}
+
 export interface Usuario {
   nombre: string;
   password: string;
@@ -21,6 +27,7 @@ export interface Usuario {
   progresoLogros: { [key: string]: number };
   cooldownsMisiones: { [key: string]: number };
   historialMisiones: { [key: string]: number[] };
+  xpPendienteEntrega?: XpPendiente | null;
 }
 
 export interface Mision {

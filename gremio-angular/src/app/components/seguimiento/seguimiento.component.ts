@@ -32,6 +32,11 @@ export class SeguimientoComponent {
     { initialValue: [] as Dificultad[] }
   );
 
+  // Modal completar misión
+  modalCompletar = signal(false);
+  nombreCompletando = '';
+  xpYaEntregada = false;
+
   // Modal ajustar puntos
   modalPuntos = signal(false);
   nombreAjuste = '';
@@ -42,27 +47,20 @@ export class SeguimientoComponent {
     return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
   }
 
-  abrirAjustePuntos(nombre: string): void {
-    this.nombreAjuste = nombre; this.valorAjuste = 0; this.modalPuntos.set(true);
+  abrirCompletar(nombreAventurero: string): void {
+    this.nombreCompletando = nombreAventurero;
+    this.xpYaEntregada = false;
+    this.modalCompletar.set(true);
   }
 
-  cerrarAjustePuntos(): void { this.modalPuntos.set(false); this.nombreAjuste = ''; }
-
-  async confirmarAjuste(): Promise<void> {
-    if (isNaN(this.valorAjuste)) { alert('Introduce un número válido.'); return; }
-    const u = this.usuarios().find(x => x.nombre === this.nombreAjuste);
-    if (!u) return;
-    const puntos = Math.max(0, (u.puntos || 0) + this.valorAjuste);
-    const puntosSemanales = Math.max(0, (u.puntosSemanales || 0) + this.valorAjuste);
-    const rango = calcularRango(puntos, u.rol, u.nombre);
-    await this.db.actualizarUsuario(u.nombre, { puntos, puntosSemanales, rango });
-    const sesion = this.auth.usuario();
-    if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria({ ...sesion, puntos, puntosSemanales, rango });
-    this.cerrarAjustePuntos();
+  cerrarCompletar(): void {
+    this.modalCompletar.set(false);
+    this.nombreCompletando = '';
   }
 
-  async completarMision(nombreAventurero: string): Promise<void> {
-    if (!confirm(`¿Confirmas que ${nombreAventurero} completó la misión? Se le otorgarán puntos y logros.`)) return;
+  async confirmarCompletar(): Promise<void> {
+    const nombreAventurero = this.nombreCompletando;
+    this.cerrarCompletar();
     const u = { ...this.usuarios().find(x => x.nombre === nombreAventurero)! };
     if (!u || !u.misionActiva) return;
 
@@ -100,10 +98,33 @@ export class SeguimientoComponent {
       }
     });
 
+    // XP pendiente de entrega
+    u.xpPendienteEntrega = this.xpYaEntregada
+      ? null
+      : { mision: u.misionActiva.titulo, puntos: pts, fecha: Date.now() };
+
     u.misionActiva = null;
     await this.db.actualizarUsuario(u.nombre, u);
     const sesion = this.auth.usuario();
     if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria(u);
-    alert(`¡Misión completada! ${u.nombre} recibió ${pts} pts y los logros se actualizaron.`);
+  }
+
+  abrirAjustePuntos(nombre: string): void {
+    this.nombreAjuste = nombre; this.valorAjuste = 0; this.modalPuntos.set(true);
+  }
+
+  cerrarAjustePuntos(): void { this.modalPuntos.set(false); this.nombreAjuste = ''; }
+
+  async confirmarAjuste(): Promise<void> {
+    if (isNaN(this.valorAjuste)) { alert('Introduce un número válido.'); return; }
+    const u = this.usuarios().find(x => x.nombre === this.nombreAjuste);
+    if (!u) return;
+    const puntos = Math.max(0, (u.puntos || 0) + this.valorAjuste);
+    const puntosSemanales = Math.max(0, (u.puntosSemanales || 0) + this.valorAjuste);
+    const rango = calcularRango(puntos, u.rol, u.nombre);
+    await this.db.actualizarUsuario(u.nombre, { puntos, puntosSemanales, rango });
+    const sesion = this.auth.usuario();
+    if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria({ ...sesion, puntos, puntosSemanales, rango });
+    this.cerrarAjustePuntos();
   }
 }

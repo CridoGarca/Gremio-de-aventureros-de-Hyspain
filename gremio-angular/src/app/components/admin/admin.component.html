@@ -45,6 +45,43 @@
     <h3 class="text-3xl text-yellow-500 fuente-gremio">Consola de Maestros</h3>
   </div>
 
+  <!-- XP Pendiente de Entrega -->
+  @if (usuariosPendientesXP.length > 0) {
+    <div class="bg-black/40 border border-orange-700/60 p-6 rounded-lg mb-8">
+      <h4 class="text-xl text-orange-400 mb-4 fuente-gremio border-b border-orange-900/50 pb-2 flex items-center gap-2">
+        <i class="fa-solid fa-hourglass-half"></i>XP Pendiente de Entrega
+        <span class="ml-auto bg-orange-700/60 text-orange-200 text-xs font-bold px-2.5 py-1 rounded-full">
+          {{ usuariosPendientesXP.length }} pendiente{{ usuariosPendientesXP.length !== 1 ? 's' : '' }}
+        </span>
+      </h4>
+      <div class="space-y-3">
+        @for (u of usuariosPendientesXP; track u.nombre) {
+          <div class="flex items-center justify-between gap-4 bg-orange-950/30 border border-orange-800/40 rounded-lg px-4 py-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <img [src]="u.foto || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'"
+                class="w-9 h-9 rounded-full border border-orange-700/50 object-cover bg-black flex-shrink-0">
+              <div class="min-w-0">
+                <span class="font-bold text-yellow-400 block truncate">{{ u.nombre }}</span>
+                <span class="text-xs text-gray-400 truncate block">
+                  <i class="fa-solid fa-scroll mr-1"></i>{{ u.xpPendienteEntrega!.mision }}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <span class="text-orange-300 font-bold text-sm whitespace-nowrap">
+                <i class="fa-solid fa-star mr-1 text-yellow-500"></i>{{ u.xpPendienteEntrega!.puntos }} XP
+              </span>
+              <button (click)="marcarXpEntregada(u.nombre)"
+                class="px-3 py-1.5 bg-green-900/50 border border-green-600 text-green-300 hover:bg-green-800/70 rounded text-xs font-bold uppercase tracking-wider transition whitespace-nowrap">
+                <i class="fa-solid fa-check mr-1"></i>Entregada
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Publicar noticia -->
   <div class="bg-black/40 border border-yellow-700/50 p-6 rounded-lg mb-8">
     <h4 class="text-xl text-yellow-500 mb-6 fuente-gremio border-b border-gray-700 pb-2"><i class="fa-solid fa-feather-pointed mr-2"></i>Publicar Noticia</h4>
