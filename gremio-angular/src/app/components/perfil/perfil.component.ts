@@ -54,7 +54,7 @@ export class PerfilComponent implements OnInit {
         this.cropper = new Cropper(this.imgRecorte.nativeElement, {
           aspectRatio: 1, viewMode: 1, background: false
         });
-      }, 100);
+      }, 200);
     };
     reader.readAsDataURL(file);
   }
@@ -81,17 +81,21 @@ export class PerfilComponent implements OnInit {
     if (!this.editNombre.trim() || !this.editPassword.trim()) {
       alert('Campos vacíos.'); return;
     }
-    const actualizado = {
-      ...u,
+    const cambios: Record<string, unknown> = {
       nombre: this.editNombre.trim(),
       password: this.editPassword.trim(),
       raza: this.editRaza.trim(),
       faccion: this.editFaccion.trim(),
       foto: this.fotoTemporal || u.foto
     };
-    await this.db.actualizarUsuario(u.nombre, actualizado);
-    this.auth.actualizarUsuarioEnMemoria(actualizado);
-    this.mensajeOk.set(true);
-    setTimeout(() => this.mensajeOk.set(false), 3000);
+    try {
+      await this.db.actualizarUsuario(u.nombre, cambios as any);
+      this.auth.actualizarUsuarioEnMemoria({ ...u, ...cambios });
+      this.mensajeOk.set(true);
+      setTimeout(() => this.mensajeOk.set(false), 3000);
+    } catch (err) {
+      console.error('Error al guardar perfil:', err);
+      alert('No se pudieron guardar los cambios. Intenta de nuevo.');
+    }
   }
 }

@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Usuario, Dificultad } from '../../models/models';
@@ -14,10 +15,22 @@ import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
   imports: [CommonModule, FormsModule],
   templateUrl: './seguimiento.component.html'
 })
-export class SeguimientoComponent implements OnInit, OnDestroy {
-  usuarios: Usuario[] = [];
-  private dificultadesMap: { [key: string]: number } = {};
-  private sub?: Subscription;
+export class SeguimientoComponent {
+  private db = inject(DbService);
+  auth = inject(AuthService);
+
+  usuarios = toSignal(
+    this.db.getUsuarios$().pipe(
+      map(u => u.sort((a, b) => b.puntos - a.puntos)),
+      catchError(e => { console.error('Error cargando usuarios:', e); return of([]); })
+    ),
+    { initialValue: [] as Usuario[] }
+  );
+
+  private dificultades = toSignal(
+    this.db.getDificultades$().pipe(catchError(e => { console.error(e); return of([]); })),
+    { initialValue: [] as Dificultad[] }
+  );
 
   // Modal ajustar puntos
   modalPuntos = signal(false);
@@ -25,19 +38,9 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
   valorAjuste = 0;
   colorRango = colorRango;
 
-  constructor(public auth: AuthService, private db: DbService) {}
-
-  ngOnInit(): void {
-    this.sub = this.db.getUsuarios$().subscribe(u => {
-      this.usuarios = u.sort((a, b) => b.puntos - a.puntos);
-    });
-    this.db.getDificultades$().subscribe(d => {
-      this.dificultadesMap = {};
-      d.forEach(x => this.dificultadesMap[x.nombre] = x.puntos);
-    });
+  private puntosDificultad(dif: string): number {
+    return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
   }
-
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
 
   abrirAjustePuntos(nombre: string): void {
     this.nombreAjuste = nombre; this.valorAjuste = 0; this.modalPuntos.set(true);
@@ -47,7 +50,7 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
 
   async confirmarAjuste(): Promise<void> {
     if (isNaN(this.valorAjuste)) { alert('Introduce un número válido.'); return; }
-    const u = this.usuarios.find(x => x.nombre === this.nombreAjuste);
+    const u = this.usuarios().find(x => x.nombre === this.nombreAjuste);
     if (!u) return;
     const puntos = Math.max(0, (u.puntos || 0) + this.valorAjuste);
     const puntosSemanales = Math.max(0, (u.puntosSemanales || 0) + this.valorAjuste);
@@ -60,11 +63,11 @@ export class SeguimientoComponent implements OnInit, OnDestroy {
 
   async completarMision(nombreAventurero: string): Promise<void> {
     if (!confirm(`¿Confirmas que ${nombreAventurero} completó la misión? Se le otorgarán puntos y logros.`)) return;
-    const u = { ...this.usuarios.find(x => x.nombre === nombreAventurero)! };
+    const u = { ...this.usuarios().find(x => x.nombre === nombreAventurero)! };
     if (!u || !u.misionActiva) return;
 
     const dif = u.misionActiva.dificultad;
-    const pts = this.dificultadesMap[dif] ?? PUNTOS_DIFICULTAD[dif] ?? 10;
+    const pts = this.puntosDificultad(dif);
     u.puntos = (u.puntos || 0) + pts;
     u.puntosSemanales = (u.puntosSemanales || 0) + pts;
     u.rango = calcularRango(u.puntos, u.rol, u.nombre);

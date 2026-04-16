@@ -130,6 +130,10 @@
         <label class="block text-gray-400 text-sm mb-1">Recompensa Extra (Opcional)</label>
         <input [(ngModel)]="misionRecompensa" type="text" placeholder="Ej: 100 de Oro y 1 Poción" class="w-full p-2.5 rounded text-white input-rol">
       </div>
+      <div>
+        <label class="block text-gray-400 text-sm mb-1">Materiales a entregar (Opcional)</label>
+        <input [(ngModel)]="misionMateriales" type="text" placeholder="Ej: 10 Pieles, 5 Cristales Mágicos" class="w-full p-2.5 rounded text-white input-rol">
+      </div>
       <div class="md:col-span-2">
         <label class="block text-gray-400 text-sm mb-1">Descripción</label>
         <textarea [(ngModel)]="misionDesc" rows="3" placeholder="Detalla la misión. TIP: Si escribes '15 Copper Ore', se sumará a los logros al completarla." class="w-full p-2.5 rounded text-white input-rol"></textarea>

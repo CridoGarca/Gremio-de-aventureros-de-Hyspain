@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -28,10 +28,18 @@ export class MisionesComponent {
     { initialValue: [] }
   );
 
+  misionesPorDificultad = computed(() => {
+    const difs = [...this.dificultades()].sort((a, b) => a.orden - b.orden);
+    const misiones = this.misiones();
+    return difs
+      .map(d => ({ dificultad: d, misiones: misiones.filter(m => m.dificultad === d.nombre) }))
+      .filter(g => g.misiones.length > 0);
+  });
+
   // Modal editar misión
   modalEditar = signal(false);
   editId: number | null = null;
-  editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editDescripcion = '';
+  editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editMateriales = ''; editDescripcion = ''
 
   puntosDificultad(dif: string): number {
     return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
@@ -78,7 +86,7 @@ export class MisionesComponent {
       const lim = LIMITE_HISTORIAL[m.dificultad] || 6;
       alert(`Debes completar otras ${lim} misiones de dificultad ${m.dificultad} antes de poder repetir esta.`); return;
     }
-    u.misionActiva = { id: m.id, titulo: m.titulo, recompensa: m.recompensa, dificultad: m.dificultad, descripcion: m.descripcion };
+    u.misionActiva = { id: m.id, titulo: m.titulo, recompensa: m.recompensa, materiales: m.materiales || '', dificultad: m.dificultad, descripcion: m.descripcion };
     await this.db.actualizarUsuario(u.nombre, { misionActiva: u.misionActiva });
     this.auth.actualizarUsuarioEnMemoria(u);
   }
@@ -98,7 +106,8 @@ export class MisionesComponent {
   abrirEditar(m: Mision): void {
     this.editId = m.id; this.editTitulo = m.titulo;
     this.editDificultad = m.dificultad; this.editRecompensa = m.recompensa;
-    this.editDescripcion = m.descripcion; this.modalEditar.set(true);
+    this.editMateriales = m.materiales || ''; this.editDescripcion = m.descripcion;
+    this.modalEditar.set(true);
   }
 
   cerrarEditar(): void { this.modalEditar.set(false); this.editId = null; }
@@ -107,7 +116,8 @@ export class MisionesComponent {
     if (!this.editId) return;
     await this.db.actualizarMision(this.editId, {
       titulo: this.editTitulo, dificultad: this.editDificultad,
-      recompensa: this.editRecompensa, descripcion: this.editDescripcion
+      recompensa: this.editRecompensa, materiales: this.editMateriales,
+      descripcion: this.editDescripcion
     });
     this.cerrarEditar();
   }

@@ -32,7 +32,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (u of usuarios; track u.nombre) {
+        @for (u of usuarios(); track u.nombre) {
           <tr class="border-b border-gray-800 hover:bg-neutral-800/50 transition">
             <td class="p-4">
               <div class="flex items-center gap-3">
@@ -52,6 +52,15 @@
               @if (u.misionActiva) {
                 <span class="text-yellow-400 font-bold text-sm"><i class="fa-solid fa-scroll mr-1"></i>{{ u.misionActiva.titulo }}</span><br>
                 <span class="text-xs text-gray-500">Dificultad: {{ u.misionActiva.dificultad }}</span>
+                @if (u.misionActiva.materiales) {
+                  <div class="mt-1.5 bg-amber-950/40 border border-amber-800/40 rounded px-2 py-1">
+                    <p class="text-amber-400 text-xs font-bold"><i class="fa-solid fa-box-open mr-1"></i>Materiales:</p>
+                    <p class="text-amber-200 text-xs">{{ u.misionActiva.materiales }}</p>
+                  </div>
+                }
+                @if (u.misionActiva.recompensa) {
+                  <p class="text-green-400 text-xs mt-1"><i class="fa-solid fa-gift mr-1"></i>{{ u.misionActiva.recompensa }}</p>
+                }
               } @else {
                 <span class="text-gray-500 italic">Ninguna</span>
               }

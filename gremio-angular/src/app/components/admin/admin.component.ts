@@ -28,7 +28,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   modalRecorte = signal(false); mensajeNoticiaOk = signal(false);
 
   // Misión
-  misionTitulo = ''; misionDificultad = 'Fácil'; misionRecompensa = ''; misionDesc = '';
+  misionTitulo = ''; misionDificultad = 'Fácil'; misionRecompensa = ''; misionMateriales = ''; misionDesc = '';
   mensajeMisionOk = signal(false);
 
   // Nueva dificultad
@@ -118,8 +118,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ── Misiones ──────────────────────────────────────────────
   async crearMision(): Promise<void> {
     if (!this.misionTitulo.trim() || !this.misionDesc.trim()) { alert('Falta título o descripción.'); return; }
-    await this.db.crearMision({ titulo: this.misionTitulo.trim(), dificultad: this.misionDificultad, recompensa: this.misionRecompensa.trim(), descripcion: this.misionDesc.trim() });
-    this.misionTitulo = ''; this.misionRecompensa = ''; this.misionDesc = '';
+    await this.db.crearMision({ titulo: this.misionTitulo.trim(), dificultad: this.misionDificultad, recompensa: this.misionRecompensa.trim(), materiales: this.misionMateriales.trim(), descripcion: this.misionDesc.trim() });
+    this.misionTitulo = ''; this.misionRecompensa = ''; this.misionMateriales = ''; this.misionDesc = '';
     this.mensajeMisionOk.set(true); setTimeout(() => this.mensajeMisionOk.set(false), 3000);
   }
 

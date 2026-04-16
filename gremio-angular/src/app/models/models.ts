@@ -2,6 +2,7 @@ export interface MisionActiva {
   id: number;
   titulo: string;
   recompensa: string;
+  materiales: string;
   dificultad: string;
   descripcion: string;
 }
@@ -27,6 +28,7 @@ export interface Mision {
   titulo: string;
   dificultad: string;
   recompensa: string;
+  materiales: string;
   descripcion: string;
 }
 
