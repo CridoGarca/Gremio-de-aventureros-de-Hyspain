@@ -28,8 +28,13 @@ export class MisionesComponent {
     { initialValue: [] }
   );
 
+  ordenMisiones = signal<'asc' | 'desc'>('asc');
+
   misionesPorDificultad = computed(() => {
-    const difs = [...this.dificultades()].sort((a, b) => a.orden - b.orden);
+    const orden = this.ordenMisiones();
+    const difs = [...this.dificultades()].sort((a, b) =>
+      orden === 'asc' ? a.orden - b.orden : b.orden - a.orden
+    );
     const misiones = this.misiones();
     return difs
       .map(d => ({ dificultad: d, misiones: misiones.filter(m => m.dificultad === d.nombre) }))

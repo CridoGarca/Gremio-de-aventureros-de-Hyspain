@@ -43,9 +43,28 @@
 
 <!-- Tablón -->
 <div class="animate-[fadeIn_0.3s_ease-in-out]">
-  <div class="flex items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+  <div class="flex flex-wrap items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
     <i class="fa-solid fa-map-location-dot text-4xl text-yellow-600"></i>
     <h3 class="text-3xl text-yellow-500 fuente-gremio">Tablón de Solicitudes</h3>
+    <div class="ml-auto flex items-center gap-2">
+      <span class="text-gray-400 text-sm"><i class="fa-solid fa-sort mr-1"></i>Ordenar:</span>
+      <button
+        (click)="ordenMisiones.set('asc')"
+        [class]="'px-3 py-1.5 rounded text-xs font-bold uppercase border transition ' +
+          (ordenMisiones() === 'asc'
+            ? 'btn-medieval border-yellow-600'
+            : 'bg-neutral-800 border-neutral-600 text-gray-400 hover:border-yellow-700 hover:text-yellow-400')">
+        <i class="fa-solid fa-arrow-up mr-1"></i>Más fáciles
+      </button>
+      <button
+        (click)="ordenMisiones.set('desc')"
+        [class]="'px-3 py-1.5 rounded text-xs font-bold uppercase border transition ' +
+          (ordenMisiones() === 'desc'
+            ? 'btn-medieval border-yellow-600'
+            : 'bg-neutral-800 border-neutral-600 text-gray-400 hover:border-yellow-700 hover:text-yellow-400')">
+        <i class="fa-solid fa-arrow-down mr-1"></i>Más difíciles
+      </button>
+    </div>
   </div>
 
   @if (misiones().length === 0) {
