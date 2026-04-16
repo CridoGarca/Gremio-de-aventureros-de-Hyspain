@@ -6,7 +6,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Usuario, Mision, Noticia, Logro, Dificultad } from '../models/models';
+import { Usuario, Mision, Noticia, Logro, Dificultad, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras } from '../models/models';
 import { DATA_BRUTA } from '../constants/logros-data';
 import { FIRESTORE_TOKEN } from './firestore.token';
 
@@ -188,6 +188,90 @@ export class DbService {
 
   async eliminarDificultad(nombre: string): Promise<void> {
     await deleteDoc(doc(this.fs, 'dificultades', nombre));
+  }
+
+  // ── Caballos: Escuderías ────────────────────────────────
+  getEscuderias$(): Observable<Escuderia[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'caballos_escuderias'), orderBy('puntos', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as Escuderia)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearEscuderia(e: Escuderia): Promise<void> {
+    await setDoc(doc(this.fs, 'caballos_escuderias', e.id.toString()), e);
+  }
+
+  async actualizarEscuderia(id: number, data: Partial<Escuderia>): Promise<void> {
+    await updateDoc(doc(this.fs, 'caballos_escuderias', id.toString()), data as Record<string, unknown>);
+  }
+
+  async eliminarEscuderia(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'caballos_escuderias', id.toString()));
+  }
+
+  // ── Caballos: Corredores ────────────────────────────────
+  getCorredores$(): Observable<Corredor[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'caballos_corredores'), orderBy('puntos', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as Corredor)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearCorredor(c: Corredor): Promise<void> {
+    await setDoc(doc(this.fs, 'caballos_corredores', c.id.toString()), c);
+  }
+
+  async actualizarCorredor(id: number, data: Partial<Corredor>): Promise<void> {
+    await updateDoc(doc(this.fs, 'caballos_corredores', id.toString()), data as Record<string, unknown>);
+  }
+
+  async eliminarCorredor(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'caballos_corredores', id.toString()));
+  }
+
+  // ── Caballos: Resultados de carrera ─────────────────────
+  getResultados$(): Observable<ResultadoCarrera[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'caballos_resultados'), orderBy('id', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as ResultadoCarrera)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearResultado(r: ResultadoCarrera): Promise<void> {
+    await setDoc(doc(this.fs, 'caballos_resultados', r.id.toString()), r);
+  }
+
+  async eliminarResultado(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'caballos_resultados', id.toString()));
+  }
+
+  // ── Caballos: Noticias ──────────────────────────────────
+  getNoticiasCarreras$(): Observable<NoticiaCarreras[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'caballos_noticias'), orderBy('id', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as NoticiaCarreras)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearNoticiaCarreras(n: NoticiaCarreras): Promise<void> {
+    await setDoc(doc(this.fs, 'caballos_noticias', n.id.toString()), n);
+  }
+
+  async eliminarNoticiaCarreras(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'caballos_noticias', id.toString()));
   }
 }
 

@@ -54,3 +54,39 @@ h1, h2, h3, h4, .fuente-gremio { font-family: 'Cinzel', serif; }
 .tabla-scroll::-webkit-scrollbar { width:8px; height:8px; }
 .tabla-scroll::-webkit-scrollbar-thumb { background:#4b5563; border-radius:4px; }
 input::-webkit-calendar-picker-indicator { filter:invert(1); opacity:0.5; cursor:pointer; }
+
+/* ── Carreras de Caballos ────────────────────────────────── */
+.caballos-header {
+  background: linear-gradient(135deg, rgba(6,30,15,0.90) 0%, rgba(2,44,20,0.85) 50%, rgba(5,20,10,0.95) 100%);
+  border: 1px solid rgba(52,211,153,0.35);
+  box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(52,211,153,0.04), 0 0 1px rgba(52,211,153,0.5);
+}
+.caballos-panel {
+  background: rgba(4,20,10,0.80);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(52,211,153,0.18);
+  box-shadow: 0 0 15px rgba(0,0,0,0.7), inset 0 0 12px rgba(52,211,153,0.02);
+}
+.caballos-input {
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(52,211,153,0.25);
+  color: #d1fae5;
+  transition: all 0.25s ease;
+}
+.caballos-input:focus {
+  border-color: #34d399;
+  box-shadow: 0 0 8px rgba(52,211,153,0.3);
+  outline: none;
+}
+.caballos-btn {
+  background: linear-gradient(135deg, #064e3b 0%, #022c1b 100%);
+  border: 1px solid #059669;
+  color: #a7f3d0;
+  transition: all 0.3s ease;
+}
+.caballos-btn:hover {
+  background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+  box-shadow: 0 0 15px rgba(52,211,153,0.5);
+  transform: translateY(-1px);
+  border-color: #34d399;
+}

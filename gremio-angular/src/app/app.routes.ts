@@ -10,6 +10,7 @@ import { RankingSemanalComponent } from './components/ranking-semanal/ranking-se
 import { LogrosComponent } from './components/logros/logros.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
+import { CaballosComponent } from './components/caballos/caballos.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'ranking-global', component: RankingGlobalComponent },
       { path: 'ranking-semanal', component: RankingSemanalComponent },
       { path: 'logros', component: LogrosComponent },
+      { path: 'caballos', component: CaballosComponent },
       { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
       { path: 'seguimiento', component: SeguimientoComponent, canActivate: [adminGuard] },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }

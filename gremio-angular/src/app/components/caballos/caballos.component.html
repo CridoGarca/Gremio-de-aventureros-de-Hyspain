@@ -1,0 +1,416 @@
+<!-- ══════════════════════════════════════════════════════════════
+     CARRERAS DE CABALLOS — zona temática diferenciada (verde esmeralda / dorado)
+     ══════════════════════════════════════════════════════════════ -->
+
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+
+  <!-- CABECERA con estética propia -->
+  <div class="caballos-header rounded-xl mb-6 p-6 flex flex-wrap items-center gap-4 justify-between">
+    <div class="flex items-center gap-4">
+      <span class="text-5xl">🐎</span>
+      <div>
+        <h2 class="text-3xl fuente-gremio font-bold text-emerald-300 tracking-wide drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]">
+          Pista Real de Carreras
+        </h2>
+        <p class="text-emerald-500/70 text-sm">Temporada actual · Hyspain Racing League</p>
+      </div>
+    </div>
+    <!-- Nav interna -->
+    <div class="flex gap-2 flex-wrap">
+      <button (click)="vista.set('noticias')"
+        [class]="'px-4 py-2 rounded-lg text-sm font-bold uppercase transition border ' +
+          (vista() === 'noticias' ? 'bg-emerald-700/60 border-emerald-500 text-emerald-200 shadow-[0_0_10px_rgba(52,211,153,0.4)]' : 'bg-black/40 border-emerald-900/40 text-emerald-400/70 hover:border-emerald-600 hover:text-emerald-300')">
+        <i class="fa-solid fa-newspaper mr-2"></i>Noticias
+      </button>
+      <button (click)="vista.set('clasificacion')"
+        [class]="'px-4 py-2 rounded-lg text-sm font-bold uppercase transition border ' +
+          (vista() === 'clasificacion' ? 'bg-emerald-700/60 border-emerald-500 text-emerald-200 shadow-[0_0_10px_rgba(52,211,153,0.4)]' : 'bg-black/40 border-emerald-900/40 text-emerald-400/70 hover:border-emerald-600 hover:text-emerald-300')">
+        <i class="fa-solid fa-trophy mr-2"></i>Clasificación
+      </button>
+      @if (auth.esAdmin()) {
+        <button (click)="vista.set('admin')"
+          [class]="'px-4 py-2 rounded-lg text-sm font-bold uppercase transition border ' +
+            (vista() === 'admin' ? 'bg-emerald-900/60 border-emerald-400 text-emerald-100 shadow-[0_0_10px_rgba(52,211,153,0.4)]' : 'bg-black/40 border-emerald-900/40 text-emerald-400/70 hover:border-emerald-600 hover:text-emerald-300')">
+          <i class="fa-solid fa-gavel mr-2"></i>Gestión
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ════════════════ NOTICIAS ════════════════ -->
+  @if (vista() === 'noticias') {
+    @if (noticias().length === 0) {
+      <div class="caballos-panel rounded-xl p-10 text-center text-emerald-700">
+        <i class="fa-solid fa-horse text-5xl mb-3 block opacity-30"></i>
+        <p class="text-lg">No hay noticias todavía.</p>
+      </div>
+    }
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      @for (n of noticias(); track n.id) {
+        <div class="caballos-panel rounded-xl overflow-hidden hover:border-emerald-600/60 transition-colors duration-300">
+          @if (n.imagen) {
+            <img [src]="n.imagen" class="w-full h-40 object-cover opacity-80">
+          }
+          <div class="p-5">
+            <div class="flex justify-between items-start gap-2 mb-2">
+              <h4 class="text-emerald-300 fuente-gremio font-bold text-lg leading-tight">{{ n.titulo }}</h4>
+              @if (auth.esAdmin()) {
+                <button (click)="eliminarNoticia(n.id)" class="text-red-500 hover:text-red-400 bg-black/50 p-1.5 rounded shrink-0">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              }
+            </div>
+            <p class="text-gray-400 text-sm mb-3 leading-relaxed">{{ n.contenido }}</p>
+            <span class="text-emerald-700 text-xs"><i class="fa-regular fa-calendar mr-1"></i>{{ n.fecha }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ════════════════ CLASIFICACIÓN ════════════════ -->
+  @if (vista() === 'clasificacion') {
+    <!-- Selector tipo -->
+    <div class="flex gap-3 mb-6">
+      <button (click)="tipoClasif.set('corredores')"
+        [class]="'px-5 py-2 rounded-lg font-bold text-sm uppercase border transition ' +
+          (tipoClasif() === 'corredores' ? 'bg-emerald-800/60 border-emerald-500 text-emerald-200' : 'bg-black/30 border-emerald-900/50 text-emerald-500 hover:border-emerald-600 hover:text-emerald-300')">
+        <i class="fa-solid fa-user mr-2"></i>Corredores
+      </button>
+      <button (click)="tipoClasif.set('escuderias')"
+        [class]="'px-5 py-2 rounded-lg font-bold text-sm uppercase border transition ' +
+          (tipoClasif() === 'escuderias' ? 'bg-emerald-800/60 border-emerald-500 text-emerald-200' : 'bg-black/30 border-emerald-900/50 text-emerald-500 hover:border-emerald-600 hover:text-emerald-300')">
+        <i class="fa-solid fa-shield-halved mr-2"></i>Escuderías
+      </button>
+    </div>
+
+    <!-- Tabla Corredores -->
+    @if (tipoClasif() === 'corredores') {
+      <div class="caballos-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto tabla-scroll">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-emerald-900/60 text-emerald-600 uppercase text-xs tracking-wider">
+                <th class="py-3 px-4 text-left w-12">Pos</th>
+                <th class="py-3 px-4 text-left w-14">Foto</th>
+                <th class="py-3 px-4 text-left">Corredor</th>
+                <th class="py-3 px-4 text-left w-12">País</th>
+                <th class="py-3 px-4 text-left">Escudería</th>
+                <th class="py-3 px-4 text-right">Puntos</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of corredoresOrdenados(); track c.id; let i = $index) {
+                <tr [class]="'border-b border-emerald-950/60 hover:bg-emerald-900/10 transition-colors ' + (i === 0 ? 'bg-amber-950/20' : i === 1 ? 'bg-gray-800/20' : i === 2 ? 'bg-orange-950/20' : '')">
+                  <!-- Posición -->
+                  <td class="py-3 px-4">
+                    @if (i === 0) {
+                      <span class="text-amber-400 font-black text-base fuente-gremio">P1</span>
+                    } @else if (i === 1) {
+                      <span class="text-gray-300 font-black text-base fuente-gremio">P2</span>
+                    } @else if (i === 2) {
+                      <span class="text-orange-500 font-black text-base fuente-gremio">P3</span>
+                    } @else {
+                      <span class="text-emerald-700 font-bold fuente-gremio">P{{ i + 1 }}</span>
+                    }
+                  </td>
+                  <!-- Foto -->
+                  <td class="py-3 px-4">
+                    <img [src]="c.foto || 'https://cdn-icons-png.flaticon.com/512/1864/1864593.png'"
+                      class="w-9 h-9 rounded-full object-cover border-2 border-emerald-800/60"
+                      [alt]="c.nombre">
+                  </td>
+                  <!-- Nombre -->
+                  <td class="py-3 px-4 font-bold text-white text-base fuente-gremio italic">{{ c.nombre }}</td>
+                  <!-- Bandera -->
+                  <td class="py-3 px-4 text-2xl leading-none">{{ c.bandera }}</td>
+                  <!-- Escudería -->
+                  <td class="py-3 px-4">
+                    <span class="text-emerald-400/80 text-xs uppercase tracking-wider font-semibold">{{ c.escuderia }}</span>
+                  </td>
+                  <!-- Puntos -->
+                  <td class="py-3 px-4 text-right font-black text-emerald-300 tracking-wider">
+                    {{ c.puntos }} <span class="text-emerald-700 font-normal text-xs">PTS</span>
+                  </td>
+                </tr>
+              }
+              @if (corredoresOrdenados().length === 0) {
+                <tr><td colspan="6" class="py-10 text-center text-emerald-800">Sin corredores registrados.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Tabla Escuderías -->
+    @if (tipoClasif() === 'escuderias') {
+      <div class="caballos-panel rounded-xl overflow-hidden">
+        <div class="overflow-x-auto tabla-scroll">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-emerald-900/60 text-emerald-600 uppercase text-xs tracking-wider">
+                <th class="py-3 px-4 text-left w-12">Pos</th>
+                <th class="py-3 px-4 text-left w-14">Logo</th>
+                <th class="py-3 px-4 text-left">Escudería</th>
+                <th class="py-3 px-4 text-left w-12">País</th>
+                <th class="py-3 px-4 text-right">Puntos</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of escuderiasOrdenadas(); track e.id; let i = $index) {
+                <tr [class]="'border-b border-emerald-950/60 hover:bg-emerald-900/10 transition-colors ' + (i === 0 ? 'bg-amber-950/20' : i === 1 ? 'bg-gray-800/20' : i === 2 ? 'bg-orange-950/20' : '')">
+                  <td class="py-3 px-4">
+                    @if (i === 0) {
+                      <span class="text-amber-400 font-black text-base fuente-gremio">P1</span>
+                    } @else if (i === 1) {
+                      <span class="text-gray-300 font-black text-base fuente-gremio">P2</span>
+                    } @else if (i === 2) {
+                      <span class="text-orange-500 font-black text-base fuente-gremio">P3</span>
+                    } @else {
+                      <span class="text-emerald-700 font-bold fuente-gremio">P{{ i + 1 }}</span>
+                    }
+                  </td>
+                  <td class="py-3 px-4">
+                    <img [src]="e.foto || 'https://cdn-icons-png.flaticon.com/512/1864/1864593.png'"
+                      class="w-9 h-9 rounded-full object-cover border-2"
+                      [style.borderColor]="e.color"
+                      [alt]="e.nombre">
+                  </td>
+                  <td class="py-3 px-4 font-bold fuente-gremio italic" [style.color]="e.color">{{ e.nombre }}</td>
+                  <td class="py-3 px-4 text-2xl leading-none">{{ e.bandera }}</td>
+                  <td class="py-3 px-4 text-right font-black text-emerald-300 tracking-wider">
+                    {{ e.puntos }} <span class="text-emerald-700 font-normal text-xs">PTS</span>
+                  </td>
+                </tr>
+              }
+              @if (escuderiasOrdenadas().length === 0) {
+                <tr><td colspan="5" class="py-10 text-center text-emerald-800">Sin escuderías registradas.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Últimas carreras -->
+    @if (resultados().length > 0) {
+      <div class="mt-8">
+        <h4 class="text-emerald-400 fuente-gremio text-lg mb-4 border-b border-emerald-900/40 pb-2">
+          <i class="fa-solid fa-flag-checkered mr-2"></i>Historial de Carreras
+        </h4>
+        <div class="grid gap-4">
+          @for (r of resultados(); track r.id) {
+            <div class="caballos-panel rounded-xl p-4">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h5 class="text-emerald-200 fuente-gremio font-bold">{{ r.titulo }}</h5>
+                  <span class="text-emerald-700 text-xs"><i class="fa-regular fa-calendar mr-1"></i>{{ r.fecha }}</span>
+                </div>
+                @if (auth.esAdmin()) {
+                  <button (click)="eliminarResultado(r.id)" class="text-red-500 hover:text-red-400 bg-black/50 p-1.5 rounded">
+                    <i class="fa-solid fa-trash text-xs"></i>
+                  </button>
+                }
+              </div>
+              <div class="flex flex-wrap gap-2">
+                @for (res of r.resultados; track res.posicion) {
+                  <span class="text-xs px-2 py-1 rounded bg-emerald-950/60 border border-emerald-900/40 text-emerald-400">
+                    P{{ res.posicion }} · {{ nombreCorredor(res.corredorId) }} · <strong>{{ res.puntos }} pts</strong>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ════════════════ ADMIN ════════════════ -->
+  @if (vista() === 'admin' && auth.esAdmin()) {
+    <!-- Sub-nav admin -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      @for (tab of ([{k:'corredor', l:'Corredor', ic:'fa-user'}, {k:'escuderia', l:'Escudería', ic:'fa-shield-halved'}, {k:'resultado', l:'Resultado', ic:'fa-flag-checkered'}, {k:'noticia', l:'Noticia', ic:'fa-newspaper'}]) ; track tab.k) {
+        <button (click)="adminVista.set(tab.k)"
+          [class]="'px-4 py-2 rounded-lg text-xs font-bold uppercase border transition ' +
+            (adminVista() === tab.k ? 'bg-emerald-900/60 border-emerald-500 text-emerald-100' : 'bg-black/30 border-emerald-900/40 text-emerald-600 hover:text-emerald-400 hover:border-emerald-700')">
+          <i [class]="'fa-solid ' + tab.ic + ' mr-1'"></i>{{ tab.l }}
+        </button>
+      }
+    </div>
+
+    <!-- Crear Corredor -->
+    @if (adminVista() === 'corredor') {
+      <div class="caballos-panel rounded-xl p-6 mb-6">
+        <h4 class="text-emerald-300 fuente-gremio text-xl mb-4"><i class="fa-solid fa-user-plus mr-2"></i>Nuevo Corredor</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Nombre</label>
+            <input [(ngModel)]="cNombre" class="caballos-input w-full p-2.5 rounded" placeholder="Nombre del corredor">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">País</label>
+            <input [(ngModel)]="cPais" class="caballos-input w-full p-2.5 rounded" placeholder="España">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Bandera (emoji)</label>
+            <input [(ngModel)]="cBandera" class="caballos-input w-full p-2.5 rounded" placeholder="🇪🇸">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">URL Foto</label>
+            <input [(ngModel)]="cFoto" class="caballos-input w-full p-2.5 rounded" placeholder="https://...">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Escudería</label>
+            <select [(ngModel)]="cEscuderia" class="caballos-input w-full p-2.5 rounded bg-black/60 cursor-pointer">
+              <option value="">-- Sin escudería --</option>
+              @for (e of escuderias(); track e.id) {
+                <option [value]="e.nombre">{{ e.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <button (click)="crearCorredor()" class="mt-4 caballos-btn px-6 py-2 rounded-lg font-bold uppercase text-sm">
+          <i class="fa-solid fa-plus mr-2"></i>Crear Corredor
+        </button>
+      </div>
+      <!-- Lista corredores -->
+      <div class="caballos-panel rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-emerald-900/40 text-emerald-700 text-xs uppercase">
+            <th class="p-3 text-left">Corredor</th><th class="p-3 text-left">Escudería</th><th class="p-3 text-right">Puntos</th><th class="p-3 w-10"></th>
+          </tr></thead>
+          <tbody>
+            @for (c of corredoresOrdenados(); track c.id) {
+              <tr class="border-b border-emerald-950/50 hover:bg-emerald-900/10">
+                <td class="p-3 text-white font-semibold">{{ c.bandera }} {{ c.nombre }}</td>
+                <td class="p-3 text-emerald-500 text-xs">{{ c.escuderia }}</td>
+                <td class="p-3 text-right text-emerald-300 font-bold">{{ c.puntos }}</td>
+                <td class="p-3"><button (click)="eliminarCorredor(c.id)" class="text-red-600 hover:text-red-400"><i class="fa-solid fa-trash"></i></button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Crear Escudería -->
+    @if (adminVista() === 'escuderia') {
+      <div class="caballos-panel rounded-xl p-6 mb-6">
+        <h4 class="text-emerald-300 fuente-gremio text-xl mb-4"><i class="fa-solid fa-shield-halved mr-2"></i>Nueva Escudería</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Nombre</label>
+            <input [(ngModel)]="eNombre" class="caballos-input w-full p-2.5 rounded" placeholder="Casa del Viento">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">País</label>
+            <input [(ngModel)]="ePais" class="caballos-input w-full p-2.5 rounded" placeholder="Castilla">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Bandera (emoji)</label>
+            <input [(ngModel)]="eBandera" class="caballos-input w-full p-2.5 rounded" placeholder="🏰">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">URL Logo/Foto</label>
+            <input [(ngModel)]="eFoto" class="caballos-input w-full p-2.5 rounded" placeholder="https://...">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Color</label>
+            <input [(ngModel)]="eColor" type="color" class="w-full h-10 rounded cursor-pointer bg-black/40 border border-emerald-900/60 p-1">
+          </div>
+        </div>
+        <button (click)="crearEscuderia()" class="mt-4 caballos-btn px-6 py-2 rounded-lg font-bold uppercase text-sm">
+          <i class="fa-solid fa-plus mr-2"></i>Crear Escudería
+        </button>
+      </div>
+      <div class="caballos-panel rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-emerald-900/40 text-emerald-700 text-xs uppercase">
+            <th class="p-3 text-left">Escudería</th><th class="p-3 text-right">Puntos</th><th class="p-3 w-10"></th>
+          </tr></thead>
+          <tbody>
+            @for (e of escuderiasOrdenadas(); track e.id) {
+              <tr class="border-b border-emerald-950/50 hover:bg-emerald-900/10">
+                <td class="p-3 font-semibold" [style.color]="e.color">{{ e.bandera }} {{ e.nombre }}</td>
+                <td class="p-3 text-right text-emerald-300 font-bold">{{ e.puntos }}</td>
+                <td class="p-3"><button (click)="eliminarEscuderia(e.id)" class="text-red-600 hover:text-red-400"><i class="fa-solid fa-trash"></i></button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Crear Resultado -->
+    @if (adminVista() === 'resultado') {
+      <div class="caballos-panel rounded-xl p-6 mb-6">
+        <h4 class="text-emerald-300 fuente-gremio text-xl mb-4"><i class="fa-solid fa-flag-checkered mr-2"></i>Registrar Carrera</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Título carrera</label>
+            <input [(ngModel)]="rTitulo" class="caballos-input w-full p-2.5 rounded" placeholder="Gran Premio de Hyspain">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Fecha</label>
+            <input [(ngModel)]="rFecha" type="date" class="caballos-input w-full p-2.5 rounded">
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-emerald-700 text-xs uppercase">Resultados por corredor</label>
+            <button (click)="agregarLinea()" class="text-emerald-500 hover:text-emerald-300 text-xs border border-emerald-800 rounded px-2 py-1">
+              <i class="fa-solid fa-plus mr-1"></i>Añadir fila
+            </button>
+          </div>
+          @for (l of rLineas; track $index; let i = $index) {
+            <div class="flex gap-3 mb-2 items-center">
+              <span class="text-emerald-700 text-sm w-6 shrink-0">{{ i+1 }}.</span>
+              <select [(ngModel)]="l.corredorId" class="caballos-input flex-1 p-2 rounded bg-black/60 cursor-pointer text-sm">
+                <option [value]="0">-- Corredor --</option>
+                @for (c of corredores(); track c.id) {
+                  <option [value]="c.id">{{ c.nombre }}</option>
+                }
+              </select>
+              <input [(ngModel)]="l.posicion" type="number" min="1" placeholder="Pos" class="caballos-input w-16 p-2 rounded text-sm text-center">
+              <input [(ngModel)]="l.puntos" type="number" min="0" placeholder="Pts" class="caballos-input w-20 p-2 rounded text-sm text-center">
+              <button (click)="eliminarLinea(i)" class="text-red-700 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          }
+        </div>
+        <button (click)="guardarResultado()" class="caballos-btn px-6 py-2 rounded-lg font-bold uppercase text-sm">
+          <i class="fa-solid fa-save mr-2"></i>Guardar y aplicar puntos
+        </button>
+      </div>
+    }
+
+    <!-- Crear Noticia -->
+    @if (adminVista() === 'noticia') {
+      <div class="caballos-panel rounded-xl p-6">
+        <h4 class="text-emerald-300 fuente-gremio text-xl mb-4"><i class="fa-solid fa-newspaper mr-2"></i>Nueva Noticia</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="md:col-span-2">
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Título</label>
+            <input [(ngModel)]="nTitulo" class="caballos-input w-full p-2.5 rounded" placeholder="Título de la noticia">
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Contenido</label>
+            <textarea [(ngModel)]="nContenido" rows="4" class="caballos-input w-full p-2.5 rounded"></textarea>
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">Fecha</label>
+            <input [(ngModel)]="nFecha" type="date" class="caballos-input w-full p-2.5 rounded">
+          </div>
+          <div>
+            <label class="text-emerald-700 text-xs uppercase mb-1 block">URL Imagen (opcional)</label>
+            <input [(ngModel)]="nImagen" class="caballos-input w-full p-2.5 rounded" placeholder="https://...">
+          </div>
+        </div>
+        <button (click)="crearNoticia()" class="caballos-btn px-6 py-2 rounded-lg font-bold uppercase text-sm">
+          <i class="fa-solid fa-paper-plane mr-2"></i>Publicar Noticia
+        </button>
+      </div>
+    }
+  }
+</div>
