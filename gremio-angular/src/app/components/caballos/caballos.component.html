@@ -231,13 +231,26 @@
   @if (vista() === 'admin' && auth.esAdmin()) {
     <!-- Sub-nav admin -->
     <div class="flex flex-wrap gap-2 mb-6">
-      @for (tab of ([{k:'corredor', l:'Corredor', ic:'fa-user'}, {k:'escuderia', l:'Escudería', ic:'fa-shield-halved'}, {k:'resultado', l:'Resultado', ic:'fa-flag-checkered'}, {k:'noticia', l:'Noticia', ic:'fa-newspaper'}]) ; track tab.k) {
-        <button (click)="adminVista.set(tab.k)"
-          [class]="'px-4 py-2 rounded-lg text-xs font-bold uppercase border transition ' +
-            (adminVista() === tab.k ? 'bg-emerald-900/60 border-emerald-500 text-emerald-100' : 'bg-black/30 border-emerald-900/40 text-emerald-600 hover:text-emerald-400 hover:border-emerald-700')">
-          <i [class]="'fa-solid ' + tab.ic + ' mr-1'"></i>{{ tab.l }}
-        </button>
-      }
+      <button (click)="adminVista.set('corredor')"
+        [class]="'px-4 py-2 rounded-lg text-xs font-bold uppercase border transition ' +
+          (adminVista() === 'corredor' ? 'bg-emerald-900/60 border-emerald-500 text-emerald-100' : 'bg-black/30 border-emerald-900/40 text-emerald-600 hover:text-emerald-400 hover:border-emerald-700')">
+        <i class="fa-solid fa-user mr-1"></i>Corredor
+      </button>
+      <button (click)="adminVista.set('escuderia')"
+        [class]="'px-4 py-2 rounded-lg text-xs font-bold uppercase border transition ' +
+          (adminVista() === 'escuderia' ? 'bg-emerald-900/60 border-emerald-500 text-emerald-100' : 'bg-black/30 border-emerald-900/40 text-emerald-600 hover:text-emerald-400 hover:border-emerald-700')">
+        <i class="fa-solid fa-shield-halved mr-1"></i>Escudería
+      </button>
+      <button (click)="adminVista.set('resultado')"
+        [class]="'px-4 py-2 rounded-lg text-xs font-bold uppercase border transition ' +
+          (adminVista() === 'resultado' ? 'bg-emerald-900/60 border-emerald-500 text-emerald-100' : 'bg-black/30 border-emerald-900/40 text-emerald-600 hover:text-emerald-400 hover:border-emerald-700')">
+        <i class="fa-solid fa-flag-checkered mr-1"></i>Resultado
+      </button>
+      <button (click)="adminVista.set('noticia')"
+        [class]="'px-4 py-2 rounded-lg text-xs font-bold uppercase border transition ' +
+          (adminVista() === 'noticia' ? 'bg-emerald-900/60 border-emerald-500 text-emerald-100' : 'bg-black/30 border-emerald-900/40 text-emerald-600 hover:text-emerald-400 hover:border-emerald-700')">
+        <i class="fa-solid fa-newspaper mr-1"></i>Noticia
+      </button>
     </div>
 
     <!-- Crear Corredor -->
