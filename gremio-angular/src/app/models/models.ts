@@ -13,6 +13,8 @@ export interface XpPendiente {
   fecha: number;
   aceptadoPor?: string;
   dineroEntregado?: number;
+  recompensa?: string;
+  materiales?: string;
 }
 
 export interface Usuario {
@@ -65,6 +67,7 @@ export interface Dificultad {
   color?: string;      // hex color para el título de la categoría
   cc?: number;         // cooldown en minutos
   bloque?: number;     // 1 = Pacífico-Sombría, 2 = Demencial+, 3 = Especial (sin CC)
+  fondo?: string;      // base64 background image para las tarjetas de misión
 }
 
 // ── Carreras de Caballos ──────────────────────────────────

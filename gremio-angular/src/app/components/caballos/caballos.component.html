@@ -27,7 +27,7 @@
           (vista() === 'clasificacion' ? 'bg-emerald-700/60 border-emerald-500 text-emerald-200 shadow-[0_0_10px_rgba(52,211,153,0.4)]' : 'bg-black/40 border-emerald-900/40 text-emerald-400/70 hover:border-emerald-600 hover:text-emerald-300')">
         <i class="fa-solid fa-trophy mr-2"></i>Clasificación
       </button>
-      @if (auth.esAdmin()) {
+      @if (auth.esAdminPuro()) {
         <button (click)="vista.set('admin')"
           [class]="'px-4 py-2 rounded-lg text-sm font-bold uppercase transition border ' +
             (vista() === 'admin' ? 'bg-emerald-900/60 border-emerald-400 text-emerald-100 shadow-[0_0_10px_rgba(52,211,153,0.4)]' : 'bg-black/40 border-emerald-900/40 text-emerald-400/70 hover:border-emerald-600 hover:text-emerald-300')">
@@ -54,7 +54,7 @@
           <div class="p-5">
             <div class="flex justify-between items-start gap-2 mb-2">
               <h4 class="text-emerald-300 fuente-gremio font-bold text-lg leading-tight">{{ n.titulo }}</h4>
-              @if (auth.esAdmin()) {
+              @if (auth.esAdminPuro()) {
                 <button (click)="eliminarNoticia(n.id)" class="text-red-500 hover:text-red-400 bg-black/50 p-1.5 rounded shrink-0">
                   <i class="fa-solid fa-trash text-xs"></i>
                 </button>
@@ -207,7 +207,7 @@
                   <h5 class="text-emerald-200 fuente-gremio font-bold">{{ r.titulo }}</h5>
                   <span class="text-emerald-700 text-xs"><i class="fa-regular fa-calendar mr-1"></i>{{ r.fecha }}</span>
                 </div>
-                @if (auth.esAdmin()) {
+                @if (auth.esAdminPuro()) {
                   <button (click)="eliminarResultado(r.id)" class="text-red-500 hover:text-red-400 bg-black/50 p-1.5 rounded">
                     <i class="fa-solid fa-trash text-xs"></i>
                   </button>
@@ -228,7 +228,7 @@
   }
 
   <!-- ════════════════ ADMIN ════════════════ -->
-  @if (vista() === 'admin' && auth.esAdmin()) {
+  @if (vista() === 'admin' && auth.esAdminPuro()) {
     <!-- Sub-nav admin -->
     <div class="flex flex-wrap gap-2 mb-6">
       <button (click)="adminVista.set('corredor')"

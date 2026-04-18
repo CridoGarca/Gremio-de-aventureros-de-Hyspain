@@ -90,6 +90,19 @@
             <span [style.color]="editCatColor" class="font-bold fuente-gremio">{{ editCatNombre }}</span>
           </div>
         </div>
+        <div class="md:col-span-2">
+          <label class="block text-gray-400 text-sm mb-2"><i class="fa-solid fa-image mr-1"></i>Imagen de fondo de las tarjetas (opcional)</label>
+          <input type="file" accept="image/*" (change)="seleccionarFondoCat($event)"
+            class="w-full p-2.5 rounded text-gray-300 input-rol file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-yellow-700 file:text-white hover:file:bg-yellow-600 cursor-pointer">
+          @if (editCatFondo) {
+            <div class="mt-2 flex items-center gap-3">
+              <img [src]="editCatFondo" class="w-24 h-16 object-cover rounded border border-yellow-700/50">
+              <button type="button" (click)="editCatFondo = ''" class="text-red-500 text-xs hover:text-red-400 transition">
+                <i class="fa-solid fa-xmark mr-1"></i>Eliminar fondo
+              </button>
+            </div>
+          }
+        </div>
       </div>
       <div class="flex justify-end gap-3 mt-6">
         <button (click)="cerrarEditarCat()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
@@ -169,7 +182,10 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (m of grupo.misiones; track m.id) {
           <div class="pergamino-mision p-5 pt-8 rounded relative flex flex-col hover:opacity-95 transition-opacity duration-300"
-            [style.border-color]="colorHexDificultad(m.dificultad)">
+            [style.border-color]="colorHexDificultad(m.dificultad)"
+            [style.background-image]="fondoDificultad(m.dificultad) ? 'url(' + fondoDificultad(m.dificultad) + ')' : null"
+            [style.background-size]="fondoDificultad(m.dificultad) ? 'cover' : null"
+            [style.background-position]="fondoDificultad(m.dificultad) ? 'center' : null">
             @if (auth.esAdminPuro()) {
               <div class="absolute top-3 right-3 flex gap-3 z-10">
                 <button (click)="abrirEditar(m)" class="text-blue-500 hover:text-blue-400 transition bg-black/50 p-1.5 rounded" title="Editar">

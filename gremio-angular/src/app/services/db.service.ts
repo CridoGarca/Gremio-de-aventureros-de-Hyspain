@@ -153,6 +153,10 @@ export class DbService {
     await setDoc(doc(this.fs, 'noticias', n.id.toString()), n);
   }
 
+  async actualizarNoticia(id: number, data: Partial<Noticia>): Promise<void> {
+    await updateDoc(doc(this.fs, 'noticias', id.toString()), data as Record<string, unknown>);
+  }
+
   async eliminarNoticia(id: number): Promise<void> {
     await deleteDoc(doc(this.fs, 'noticias', id.toString()));
   }

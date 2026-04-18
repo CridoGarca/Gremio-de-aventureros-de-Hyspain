@@ -120,17 +120,20 @@ export class SeguimientoComponent {
       }
     });
 
-    // XP pendiente de entrega
+    // XP pendiente de entrega: solo ADMIN puro puede dejar pendiente
     const modActual = this.auth.usuario()?.nombre || 'Sistema';
-    u.xpPendienteEntrega = xpYaEntregada
-      ? null
-      : {
+    const esAdmin = this.auth.esAdminPuro();
+    u.xpPendienteEntrega = (esAdmin && !xpYaEntregada)
+      ? {
           mision: u.misionActiva.titulo,
           puntos: pts,
           fecha: Date.now(),
           aceptadoPor: modActual,
-          dineroEntregado: dinero
-        };
+          dineroEntregado: dinero,
+          recompensa: u.misionActiva.recompensa || undefined,
+          materiales: u.misionActiva.materiales || undefined,
+        }
+      : null;
 
     const misionTitulo = u.misionActiva.titulo;
     u.misionActiva = null;

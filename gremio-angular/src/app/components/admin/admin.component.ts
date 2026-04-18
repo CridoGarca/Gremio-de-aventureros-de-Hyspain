@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import Cropper from 'cropperjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Usuario, Dificultad, EntregaHistorial } from '../../models/models';
+import { Usuario, Dificultad, EntregaHistorial, Noticia } from '../../models/models';
 import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
 import { DATA_BRUTA } from '../../constants/logros-data';
 import { COLOR_PALETTE } from '../misiones/misiones.component';
@@ -21,15 +21,22 @@ export class AdminComponent implements OnInit, OnDestroy {
   private cropper: Cropper | null = null;
   private sub?: Subscription;
   private subHistorial?: Subscription;
+  private subNoticias?: Subscription;
 
   usuarios: Usuario[] = [];
   dificultades: Dificultad[] = [];
   historialEntregas: EntregaHistorial[] = [];
+  noticias: Noticia[] = [];
   colorPalette = COLOR_PALETTE;
 
   // Noticia
   noticiaTitle = ''; noticiaContent = ''; imagenNoticia = ''; imgSrc = '';
   modalRecorte = signal(false); mensajeNoticiaOk = signal(false);
+
+  // Editar noticia existente
+  modalEditarNoticia = signal(false);
+  noticiaEditandoId: number | null = null;
+  noticiaEditTitle = ''; noticiaEditContent = ''; noticiaEditImagen = '';
 
   // Misión
   misionTitulo = ''; misionDificultad = 'Fácil'; misionRecompensa = ''; misionMateriales = ''; misionDesc = '';
@@ -49,21 +56,32 @@ export class AdminComponent implements OnInit, OnDestroy {
   todasCategorias: string[] = [];
   valoresLogros: { [key: string]: number } = {};
 
-  constructor(public auth: AuthService, private db: DbService) {
+  constructor(public auth: AuthService, private db: DbService, private cdr: ChangeDetectorRef) {
     this.todasCategorias = [...this.categoriasMisiones, ...CATEGORIAS_RECURSOS];
   }
 
   ngOnInit(): void {
-    this.sub = this.db.getUsuarios$().subscribe(u => this.usuarios = u.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    this.sub = this.db.getUsuarios$().subscribe(u => {
+      this.usuarios = u.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      this.cdr.detectChanges();
+    });
     this.db.getDificultades$().subscribe(d => {
       this.dificultades = d;
       if (d.length && !d.find(x => x.nombre === this.misionDificultad)) {
         this.misionDificultad = d[0].nombre;
       }
+      this.cdr.detectChanges();
     });
-    this.subHistorial = this.db.getHistorialEntregas$().subscribe(h => this.historialEntregas = h);
+    this.subHistorial = this.db.getHistorialEntregas$().subscribe(h => {
+      this.historialEntregas = h;
+      this.cdr.detectChanges();
+    });
+    this.subNoticias = this.db.getNoticias$().subscribe(n => {
+      this.noticias = n;
+      this.cdr.detectChanges();
+    });
   }
-  ngOnDestroy(): void { this.sub?.unsubscribe(); this.subHistorial?.unsubscribe(); }
+  ngOnDestroy(): void { this.sub?.unsubscribe(); this.subHistorial?.unsubscribe(); this.subNoticias?.unsubscribe(); }
 
   // ── Noticias ──────────────────────────────────────────────
   abrirRecorteNoticia(event: Event): void {
@@ -100,6 +118,56 @@ export class AdminComponent implements OnInit, OnDestroy {
     await this.db.crearNoticia({ id: Date.now(), titulo: this.noticiaTitle.trim(), contenido: this.noticiaContent.trim(), fecha, imagen: this.imagenNoticia || null });
     this.noticiaTitle = ''; this.noticiaContent = ''; this.imagenNoticia = '';
     this.mensajeNoticiaOk.set(true); setTimeout(() => this.mensajeNoticiaOk.set(false), 3000);
+  }
+
+  abrirEditarNoticia(n: Noticia): void {
+    this.noticiaEditandoId = n.id;
+    this.noticiaEditTitle = n.titulo;
+    this.noticiaEditContent = n.contenido;
+    this.noticiaEditImagen = n.imagen || '';
+    this.modalEditarNoticia.set(true);
+  }
+
+  cerrarEditarNoticia(): void {
+    this.modalEditarNoticia.set(false);
+    this.noticiaEditandoId = null;
+  }
+
+  abrirRecorteEditNoticia(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 800; canvas.height = 450;
+        const ctx = canvas.getContext('2d')!;
+        const ratio = Math.max(800 / img.width, 450 / img.height);
+        const w = img.width * ratio; const h = img.height * ratio;
+        const x = (800 - w) / 2; const y = (450 - h) / 2;
+        ctx.drawImage(img, x, y, w, h);
+        this.noticiaEditImagen = canvas.toDataURL('image/jpeg', 0.7);
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async guardarEditarNoticia(): Promise<void> {
+    if (!this.noticiaEditandoId) return;
+    if (!this.noticiaEditTitle.trim() || !this.noticiaEditContent.trim()) { alert('Falta título o contenido.'); return; }
+    await this.db.actualizarNoticia(this.noticiaEditandoId, {
+      titulo: this.noticiaEditTitle.trim(),
+      contenido: this.noticiaEditContent.trim(),
+      imagen: this.noticiaEditImagen || null,
+    });
+    this.cerrarEditarNoticia();
+    this.mensajeNoticiaOk.set(true); setTimeout(() => this.mensajeNoticiaOk.set(false), 3000);
+  }
+
+  async eliminarNoticiaDesdeAdmin(id: number): Promise<void> {
+    if (confirm('¿Borrar esta noticia permanentemente?')) await this.db.eliminarNoticia(id);
   }
 
   // ── Dificultades ──────────────────────────────────────────

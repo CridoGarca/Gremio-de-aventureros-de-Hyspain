@@ -68,6 +68,11 @@ export class MisionesComponent {
     return this.dificultades().find(d => d.nombre === nombre)?.color || COLOR_DEFAULT;
   }
 
+  // Retorna la imagen de fondo de una dificultad
+  fondoDificultad(nombre: string): string {
+    return this.dificultades().find(d => d.nombre === nombre)?.fondo || '';
+  }
+
   // Modal editar misión individual
   modalEditar = signal(false);
   editId: number | null = null;
@@ -82,6 +87,7 @@ export class MisionesComponent {
   editCatOrden = 1;
   editCatBloque = 0;
   editCatColor = COLOR_DEFAULT;
+  editCatFondo = '';
 
   puntosDificultad(dif: string): number {
     return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
@@ -166,6 +172,7 @@ export class MisionesComponent {
     this.editCatOrden = d.orden;
     this.editCatBloque = d.bloque ?? 0;
     this.editCatColor = d.color || COLOR_DEFAULT;
+    this.editCatFondo = d.fondo || '';
     this.modalEditarCat.set(true);
   }
 
@@ -179,9 +186,31 @@ export class MisionesComponent {
       orden: this.editCatOrden,
       color: this.editCatColor,
       bloque: this.editCatBloque || undefined,
+      fondo: this.editCatFondo || undefined,
     };
     await this.db.actualizarDificultad(nombre, datos);
     this.cerrarEditarCat();
+  }
+
+  seleccionarFondoCat(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_W = 600; const MAX_H = 400;
+        let w = img.width; let h = img.height;
+        if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+        if (h > MAX_H) { w = Math.round(w * MAX_H / h); h = MAX_H; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+        this.editCatFondo = canvas.toDataURL('image/jpeg', 0.65);
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   // ── Reordenar categorías ──────────────────────────────────
