@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Noticia } from '../../models/models';
@@ -11,17 +12,14 @@ import { Noticia } from '../../models/models';
   imports: [CommonModule],
   templateUrl: './inicio.component.html'
 })
-export class InicioComponent implements OnInit, OnDestroy {
-  noticias: Noticia[] = [];
-  private sub?: Subscription;
+export class InicioComponent {
+  private db = inject(DbService);
+  auth = inject(AuthService);
 
-  constructor(public auth: AuthService, private db: DbService) {}
-
-  ngOnInit(): void {
-    this.sub = this.db.getNoticias$().subscribe(n => this.noticias = n);
-  }
-
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  noticias = toSignal(
+    this.db.getNoticias$().pipe(catchError(() => of([] as Noticia[]))),
+    { initialValue: [] as Noticia[] }
+  );
 
   async eliminarNoticia(id: number): Promise<void> {
     if (confirm('¿Borrar esta noticia permanentemente?')) {

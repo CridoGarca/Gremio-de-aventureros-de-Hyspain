@@ -22,14 +22,14 @@
     <h3 class="text-3xl text-yellow-500 fuente-gremio">Noticias del Gremio</h3>
   </div>
 
-  @if (noticias.length === 0) {
+  @if (noticias().length === 0) {
     <div class="p-6 bg-black/40 border border-gray-700 rounded-lg text-center">
       <p class="text-gray-400">Aún no hay noticias publicadas en el gremio.</p>
     </div>
   }
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (n of noticias; track n.id) {
+    @for (n of noticias(); track n.id) {
       <div class="bg-black/50 border border-yellow-900/30 rounded-lg relative hover:border-yellow-700/50 transition shadow-[0_0_10px_rgba(0,0,0,0.3)] flex flex-col h-full overflow-hidden">
         @if (auth.esAdmin()) {
           <button (click)="eliminarNoticia(n.id)"

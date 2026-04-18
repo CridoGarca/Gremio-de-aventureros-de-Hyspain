@@ -41,6 +41,66 @@
   </div>
 }
 
+<!-- Modal editar categoría (solo ADMIN) -->
+@if (modalEditarCat()) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-lg border border-yellow-600/50">
+      <h3 class="text-2xl text-yellow-500 fuente-gremio mb-4 border-b border-yellow-700/30 pb-2">
+        <i class="fa-solid fa-layer-group mr-2"></i>Editar Categoría: {{ editCatNombre }}
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Puntos que otorga</label>
+          <input [(ngModel)]="editCatPuntos" type="number" min="0" class="w-full p-2.5 rounded text-white input-rol">
+        </div>
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Orden / Complejidad (1-10)</label>
+          <input [(ngModel)]="editCatOrden" type="number" min="1" max="99"
+            class="w-full p-2.5 rounded text-white input-rol"
+            title="Número de orden. Los valores menores aparecen antes.">
+        </div>
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Cooldown (minutos, 0 = sin CC)</label>
+          <input [(ngModel)]="editCatCc" type="number" min="0" class="w-full p-2.5 rounded text-white input-rol">
+        </div>
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Bloque de CC compartido</label>
+          <select [(ngModel)]="editCatBloque" class="w-full p-2.5 rounded text-white input-rol bg-neutral-900 cursor-pointer">
+            <option [value]="0">Sin bloque (CC individual)</option>
+            <option [value]="1">Bloque 1 (Pacífico–Sombría)</option>
+            <option [value]="2">Bloque 2 (Demencial+)</option>
+            <option [value]="3">Bloque 3 - Especial (sin CC)</option>
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-gray-400 text-sm mb-2">Color del título</label>
+          <div class="flex gap-3 flex-wrap">
+            @for (c of colorPalette; track c.hex) {
+              <button type="button"
+                (click)="selectColor(c.hex)"
+                [style.background-color]="c.hex"
+                [style.box-shadow]="editCatColor === c.hex ? '0 0 0 3px white' : 'none'"
+                class="w-9 h-9 rounded-full border-2 border-gray-600 hover:border-white transition"
+                [title]="c.name">
+              </button>
+            }
+          </div>
+          <div class="mt-2 flex items-center gap-2">
+            <span class="text-xs text-gray-400">Color seleccionado:</span>
+            <span [style.color]="editCatColor" class="font-bold fuente-gremio">{{ editCatNombre }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button (click)="cerrarEditarCat()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="guardarEditarCat()" class="px-5 py-2 btn-medieval rounded font-bold">
+          <i class="fa-solid fa-save mr-2"></i>Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
 <!-- Tablón -->
 <div class="animate-[fadeIn_0.3s_ease-in-out]">
   <div class="flex flex-wrap items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
@@ -75,20 +135,42 @@
 
   @for (grupo of misionesPorDificultad(); track grupo.dificultad.nombre) {
     <div class="mb-10">
+      <!-- Cabecera de categoría -->
       <div class="flex items-center gap-3 mb-4 border-b border-yellow-900/40 pb-2">
-        <span [class]="colorDificultad(grupo.dificultad.nombre) + ' text-xl'">
+        <span class="text-xl" [style.color]="colorHexDificultad(grupo.dificultad.nombre)">
           <i class="fa-solid fa-skull mr-1"></i>
         </span>
-        <h4 class="text-xl fuente-gremio font-bold" [class]="colorDificultad(grupo.dificultad.nombre)">
+        <h4 class="text-xl fuente-gremio font-bold" [style.color]="colorHexDificultad(grupo.dificultad.nombre)">
           {{ grupo.dificultad.nombre }}
         </h4>
         <span class="text-gray-500 text-sm">({{ grupo.dificultad.puntos }} pts · {{ grupo.misiones.length }} misión{{ grupo.misiones.length !== 1 ? 'es' : '' }})</span>
+        <!-- Controles ADMIN: reordenar + editar categoría -->
+        @if (auth.esAdminPuro()) {
+          <div class="ml-auto flex items-center gap-1">
+            <button (click)="moverCategoria(grupo.dificultad, 'arriba')"
+              class="text-gray-400 hover:text-yellow-400 transition p-1.5 rounded hover:bg-black/40"
+              title="Subir categoría">
+              <i class="fa-solid fa-arrow-up text-xs"></i>
+            </button>
+            <button (click)="moverCategoria(grupo.dificultad, 'abajo')"
+              class="text-gray-400 hover:text-yellow-400 transition p-1.5 rounded hover:bg-black/40"
+              title="Bajar categoría">
+              <i class="fa-solid fa-arrow-down text-xs"></i>
+            </button>
+            <button (click)="abrirEditarCat(grupo.dificultad)"
+              class="text-yellow-600 hover:text-yellow-400 transition p-1.5 rounded hover:bg-black/40 ml-1"
+              title="Editar categoría">
+              <i class="fa-solid fa-pencil text-xs"></i>
+            </button>
+          </div>
+        }
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (m of grupo.misiones; track m.id) {
-          <div class="pergamino-mision p-5 pt-8 rounded relative flex flex-col hover:border-yellow-600 transition-colors duration-300">
-            @if (auth.esAdmin()) {
+          <div class="pergamino-mision p-5 pt-8 rounded relative flex flex-col hover:opacity-95 transition-opacity duration-300"
+            [style.border-color]="colorHexDificultad(m.dificultad)">
+            @if (auth.esAdminPuro()) {
               <div class="absolute top-3 right-3 flex gap-3 z-10">
                 <button (click)="abrirEditar(m)" class="text-blue-500 hover:text-blue-400 transition bg-black/50 p-1.5 rounded" title="Editar">
                   <i class="fa-solid fa-pen"></i>
@@ -101,7 +183,7 @@
             <div class="chincheta"></div>
             <div class="flex justify-between items-start mb-3">
               <h4 class="text-lg text-yellow-500 fuente-gremio font-bold pr-16 leading-tight">{{ m.titulo }}</h4>
-              <span [class]="colorDificultad(m.dificultad) + ' text-xs uppercase tracking-wider whitespace-nowrap'">
+              <span class="text-xs uppercase tracking-wider whitespace-nowrap" [style.color]="colorHexDificultad(m.dificultad)">
                 <i class="fa-solid fa-skull mr-1"></i>{{ m.dificultad }}
               </span>
             </div>

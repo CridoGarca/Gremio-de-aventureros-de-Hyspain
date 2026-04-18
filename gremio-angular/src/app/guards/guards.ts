@@ -15,3 +15,11 @@ export const adminGuard: CanActivateFn = () => {
   if (auth.esAdmin()) return true;
   return router.createUrlTree(['/app/inicio']);
 };
+
+// Solo rol ADMIN (no MOD): para la Consola de administración
+export const adminPuroGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.esAdminPuro()) return true;
+  return router.createUrlTree(['/app/inicio']);
+};

@@ -14,6 +14,12 @@ export class AuthService {
     return !!(u && (u.rol === 'ADMIN' || u.rol === 'MOD' || u.nombre === 'ADMIN'));
   });
 
+  // Solo ADMIN puro (no MOD): para acciones exclusivas del rol ADMIN
+  esAdminPuro = computed(() => {
+    const u = this._usuario();
+    return !!(u && (u.rol === 'ADMIN' || u.nombre === 'ADMIN'));
+  });
+
   constructor(private db: DbService, private router: Router) {}
 
   async init(): Promise<void> {

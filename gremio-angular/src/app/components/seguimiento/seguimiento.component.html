@@ -7,21 +7,37 @@
       </h3>
       <p class="text-gray-300 text-sm mb-1">¿Confirmas que <strong class="text-yellow-400">{{ nombreCompletando }}</strong> completó la misión?</p>
       <p class="text-gray-500 text-xs mb-5">Se le otorgarán puntos y logros correspondientes.</p>
-      <!-- Checkbox XP entregada -->
-      <label class="flex items-center gap-3 cursor-pointer bg-black/40 border border-yellow-700/40 rounded-lg p-4 hover:border-yellow-600/60 transition mb-4">
-        <input type="checkbox" [(ngModel)]="xpYaEntregada"
-          class="w-5 h-5 accent-yellow-500 cursor-pointer flex-shrink-0">
-        <div>
-          <span class="text-yellow-300 font-bold text-sm block">¿XP ya entregada en juego?</span>
-          <span class="text-gray-500 text-xs">Marca esto si ya has entregado la experiencia manualmente.</span>
-        </div>
-      </label>
-      @if (!xpYaEntregada) {
+
+      <!-- Campo dinero entregado -->
+      <div class="mb-4">
+        <label class="block text-gray-400 text-sm mb-1"><i class="fa-solid fa-coins mr-1 text-yellow-500"></i>Dinero entregado en juego (CC / monedas)</label>
+        <input type="number" [(ngModel)]="dineroEntregado" min="0" placeholder="0"
+          class="w-full p-2.5 rounded text-white input-rol bg-black/50 text-center focus:border-yellow-500 transition-colors">
+      </div>
+
+      <!-- Checkbox XP entregada — solo ADMIN puro -->
+      @if (auth.esAdminPuro()) {
+        <label class="flex items-center gap-3 cursor-pointer bg-black/40 border border-yellow-700/40 rounded-lg p-4 hover:border-yellow-600/60 transition mb-4">
+          <input type="checkbox" [(ngModel)]="xpYaEntregada"
+            class="w-5 h-5 accent-yellow-500 cursor-pointer flex-shrink-0">
+          <div>
+            <span class="text-yellow-300 font-bold text-sm block">¿XP ya entregada en juego?</span>
+            <span class="text-gray-500 text-xs">Marca esto si ya has entregado la experiencia manualmente.</span>
+          </div>
+        </label>
+        @if (!xpYaEntregada) {
+          <p class="text-orange-400 text-xs mb-4 flex items-center gap-2 bg-orange-950/30 border border-orange-800/40 rounded p-3">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+            El aventurero quedará en la lista de <strong class="ml-1">XP pendiente de entrega</strong> del panel de administrador.
+          </p>
+        }
+      } @else {
         <p class="text-orange-400 text-xs mb-4 flex items-center gap-2 bg-orange-950/30 border border-orange-800/40 rounded p-3">
           <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-          El aventurero quedará en la lista de <strong class="ml-1">XP pendiente de entrega</strong> del panel de administrador.
+          La XP quedará en lista de <strong class="ml-1">pendiente de entrega</strong> para que el ADMIN la gestione.
         </p>
       }
+
       <div class="flex justify-end gap-3">
         <button (click)="cerrarCompletar()" class="px-4 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
         <button (click)="confirmarCompletar()"
@@ -33,7 +49,7 @@
   </div>
 }
 
-<!-- Modal ajustar puntos -->
+<!-- Modal ajustar puntos — solo ADMIN puro -->
 @if (modalPuntos()) {
   <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
     <div class="panel-cristal p-6 rounded-xl w-full max-w-sm border border-blue-600/50">
@@ -54,7 +70,7 @@
     <i class="fa-solid fa-eye text-4xl text-purple-500"></i>
     <h3 class="text-3xl text-purple-400 fuente-gremio">Seguimiento de Aventureros</h3>
   </div>
-  <p class="text-sm text-gray-400 mb-4">Supervisa, ajusta los puntos manualmente o aprueba las misiones completadas.</p>
+  <p class="text-sm text-gray-400 mb-4">Supervisa y aprueba las misiones completadas.</p>
 
   <div class="overflow-x-auto tabla-scroll rounded-lg border border-gray-700/50 bg-black/40">
     <table class="w-full text-left text-sm text-gray-300 min-w-[800px]">
@@ -109,10 +125,12 @@
               } @else {
                 <span class="text-xs text-gray-500 block mb-1 text-center">Sin misión activa</span>
               }
-              <button (click)="abrirAjustePuntos(u.nombre)"
-                class="px-3 py-1.5 bg-blue-900/40 text-blue-400 border border-blue-600 rounded hover:bg-blue-800/60 transition text-xs font-bold uppercase tracking-wider w-full mt-1">
-                <i class="fa-solid fa-calculator mr-1"></i>Puntos
-              </button>
+              @if (auth.esAdminPuro()) {
+                <button (click)="abrirAjustePuntos(u.nombre)"
+                  class="px-3 py-1.5 bg-blue-900/40 text-blue-400 border border-blue-600 rounded hover:bg-blue-800/60 transition text-xs font-bold uppercase tracking-wider w-full mt-1">
+                  <i class="fa-solid fa-calculator mr-1"></i>Puntos
+                </button>
+              }
             </td>
           </tr>
         }

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, adminGuard } from './guards/guards';
+import { authGuard, adminGuard, adminPuroGuard } from './guards/guards';
 import { LoginComponent } from './components/login/login.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { InicioComponent } from './components/inicio/inicio.component';
@@ -26,7 +26,7 @@ export const routes: Routes = [
       { path: 'ranking-semanal', component: RankingSemanalComponent },
       { path: 'logros', component: LogrosComponent },
       { path: 'caballos', component: CaballosComponent },
-      { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
+      { path: 'admin', component: AdminComponent, canActivate: [adminPuroGuard] },
       { path: 'seguimiento', component: SeguimientoComponent, canActivate: [adminGuard] },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }
     ]

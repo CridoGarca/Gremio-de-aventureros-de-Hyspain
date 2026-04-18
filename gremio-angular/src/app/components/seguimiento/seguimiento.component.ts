@@ -36,6 +36,7 @@ export class SeguimientoComponent {
   modalCompletar = signal(false);
   nombreCompletando = '';
   xpYaEntregada = false;
+  dineroEntregado = 0;
 
   // Modal ajustar puntos
   modalPuntos = signal(false);
@@ -50,6 +51,7 @@ export class SeguimientoComponent {
   abrirCompletar(nombreAventurero: string): void {
     this.nombreCompletando = nombreAventurero;
     this.xpYaEntregada = false;
+    this.dineroEntregado = 0;
     this.modalCompletar.set(true);
   }
 
@@ -60,6 +62,8 @@ export class SeguimientoComponent {
 
   async confirmarCompletar(): Promise<void> {
     const nombreAventurero = this.nombreCompletando;
+    const xpYaEntregada = this.xpYaEntregada;
+    const dinero = this.dineroEntregado || 0;
     this.cerrarCompletar();
     const u = { ...this.usuarios().find(x => x.nombre === nombreAventurero)! };
     if (!u || !u.misionActiva) return;
@@ -70,9 +74,27 @@ export class SeguimientoComponent {
     u.puntosSemanales = (u.puntosSemanales || 0) + pts;
     u.rango = calcularRango(u.puntos, u.rol, u.nombre);
 
-    // Cooldown
+    // Cooldown por bloques
     if (!u.cooldownsMisiones) u.cooldownsMisiones = {};
-    u.cooldownsMisiones[dif] = Date.now() + (COOLDOWNS_MS[dif] || 0);
+    const dificultadObj = this.dificultades().find(d => d.nombre === dif);
+    const bloque = dificultadObj?.bloque;
+    const ccMs = dificultadObj?.cc
+      ? dificultadObj.cc * 60 * 1000
+      : (COOLDOWNS_MS[dif] || 0);
+
+    if (bloque === 3) {
+      // Especial: sin cooldown
+    } else if (bloque === 1 || bloque === 2) {
+      // CC compartido: aplica a todas las dificultades del mismo bloque
+      this.dificultades().forEach(d => {
+        if (d.bloque === bloque) {
+          u.cooldownsMisiones[d.nombre] = Date.now() + ccMs;
+        }
+      });
+    } else {
+      // Sin bloque definido: comportamiento individual
+      u.cooldownsMisiones[dif] = Date.now() + ccMs;
+    }
 
     // Anti-fardeo
     if (!u.historialMisiones) u.historialMisiones = { 'Fácil': [], 'Media': [], 'Difícil': [], 'Épica': [] };
@@ -99,14 +121,33 @@ export class SeguimientoComponent {
     });
 
     // XP pendiente de entrega
-    u.xpPendienteEntrega = this.xpYaEntregada
+    const modActual = this.auth.usuario()?.nombre || 'Sistema';
+    u.xpPendienteEntrega = xpYaEntregada
       ? null
-      : { mision: u.misionActiva.titulo, puntos: pts, fecha: Date.now() };
+      : {
+          mision: u.misionActiva.titulo,
+          puntos: pts,
+          fecha: Date.now(),
+          aceptadoPor: modActual,
+          dineroEntregado: dinero
+        };
 
+    const misionTitulo = u.misionActiva.titulo;
     u.misionActiva = null;
     await this.db.actualizarUsuario(u.nombre, u);
     const sesion = this.auth.usuario();
     if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria(u);
+
+    // Guardar en historial de entregas
+    await this.db.crearHistorialEntrega({
+      id: Date.now(),
+      mod: modActual,
+      aventurero: nombreAventurero,
+      mision: misionTitulo,
+      puntos: pts,
+      dinero,
+      fecha: Date.now()
+    });
   }
 
   abrirAjustePuntos(nombre: string): void {

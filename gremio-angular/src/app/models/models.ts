@@ -11,6 +11,8 @@ export interface XpPendiente {
   mision: string;
   puntos: number;
   fecha: number;
+  aceptadoPor?: string;
+  dineroEntregado?: number;
 }
 
 export interface Usuario {
@@ -60,6 +62,9 @@ export interface Dificultad {
   nombre: string;
   puntos: number;
   orden: number;
+  color?: string;      // hex color para el título de la categoría
+  cc?: number;         // cooldown en minutos
+  bloque?: number;     // 1 = Pacífico-Sombría, 2 = Demencial+, 3 = Especial (sin CC)
 }
 
 // ── Carreras de Caballos ──────────────────────────────────
@@ -88,6 +93,16 @@ export interface ResultadoCarrera {
   titulo: string;
   fecha: string;
   resultados: { corredorId: number; posicion: number; puntos: number }[];
+}
+
+export interface EntregaHistorial {
+  id: number;
+  mod: string;
+  aventurero: string;
+  mision: string;
+  puntos: number;
+  dinero: number;
+  fecha: number;
 }
 
 export interface NoticiaCarreras {

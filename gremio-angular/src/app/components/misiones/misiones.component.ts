@@ -5,8 +5,29 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Mision } from '../../models/models';
+import { Mision, Dificultad } from '../../models/models';
 import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from '../../constants/rangos';
+
+// Paleta de colores para categorías (solo ADMIN puede asignarlos)
+export const COLOR_PALETTE = [
+  { name: 'Blanco',       hex: '#ffffff' },
+  { name: 'Verde claro',  hex: '#86efac' },
+  { name: 'Verde oscuro', hex: '#16a34a' },
+  { name: 'Naranja',      hex: '#f97316' },
+  { name: 'Rojo',         hex: '#ef4444' },
+  { name: 'Morado',       hex: '#a855f7' },
+  { name: 'Amarillo',     hex: '#eab308' },
+  { name: 'Azul',         hex: '#3b82f6' },
+];
+
+const COLOR_DEFAULT = '#d4af37'; // dorado (por defecto)
+
+// Bloques para label de CC en tooltip
+const BLOQUES_NOMBRE: Record<number, string> = {
+  1: 'Bloque 1 (CC compartido)',
+  2: 'Bloque 2 (CC compartido)',
+  3: 'Especial (sin CC)',
+};
 
 @Component({
   selector: 'app-misiones',
@@ -17,6 +38,7 @@ import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from
 export class MisionesComponent {
   private db = inject(DbService);
   auth = inject(AuthService);
+  colorPalette = COLOR_PALETTE;
 
   misiones = toSignal(
     this.db.getMisiones$().pipe(catchError(e => { console.error('Error cargando misiones:', e); return of([]); })),
@@ -25,7 +47,7 @@ export class MisionesComponent {
 
   dificultades = toSignal(
     this.db.getDificultades$().pipe(catchError(e => { console.error('Error cargando dificultades:', e); return of([]); })),
-    { initialValue: [] }
+    { initialValue: [] as Dificultad[] }
   );
 
   ordenMisiones = signal<'asc' | 'desc'>('asc');
@@ -41,20 +63,28 @@ export class MisionesComponent {
       .filter(g => g.misiones.length > 0);
   });
 
-  // Modal editar misión
+  // Retorna el color hex de una dificultad (o default dorado)
+  colorHexDificultad(nombre: string): string {
+    return this.dificultades().find(d => d.nombre === nombre)?.color || COLOR_DEFAULT;
+  }
+
+  // Modal editar misión individual
   modalEditar = signal(false);
   editId: number | null = null;
-  editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editMateriales = ''; editDescripcion = ''
+  editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editMateriales = ''; editDescripcion = '';
+
+  // Modal editar categoría (dificultad)
+  modalEditarCat = signal(false);
+  editCatNombre = '';
+  editCatNuevoNombre = '';
+  editCatPuntos = 10;
+  editCatCc = 0;
+  editCatOrden = 1;
+  editCatBloque = 0;
+  editCatColor = COLOR_DEFAULT;
 
   puntosDificultad(dif: string): number {
     return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
-  }
-
-  colorDificultad(d: string): string {
-    if (d === 'Fácil') return 'text-green-400';
-    if (d === 'Media') return 'text-yellow-400';
-    if (d === 'Difícil') return 'text-orange-500';
-    return 'text-red-500 font-bold drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]';
   }
 
   enCooldown(m: Mision): number {
@@ -126,4 +156,50 @@ export class MisionesComponent {
     });
     this.cerrarEditar();
   }
+
+  // ── Editar categoría (dificultad) ───────────────────────
+  abrirEditarCat(d: Dificultad): void {
+    this.editCatNombre = d.nombre;
+    this.editCatNuevoNombre = d.nombre;
+    this.editCatPuntos = d.puntos;
+    this.editCatCc = d.cc ?? 0;
+    this.editCatOrden = d.orden;
+    this.editCatBloque = d.bloque ?? 0;
+    this.editCatColor = d.color || COLOR_DEFAULT;
+    this.modalEditarCat.set(true);
+  }
+
+  cerrarEditarCat(): void { this.modalEditarCat.set(false); }
+
+  async guardarEditarCat(): Promise<void> {
+    const nombre = this.editCatNombre;
+    const datos: Partial<Dificultad> = {
+      puntos: this.editCatPuntos,
+      cc: this.editCatCc,
+      orden: this.editCatOrden,
+      color: this.editCatColor,
+      bloque: this.editCatBloque || undefined,
+    };
+    await this.db.actualizarDificultad(nombre, datos);
+    this.cerrarEditarCat();
+  }
+
+  // ── Reordenar categorías ──────────────────────────────────
+  async moverCategoria(d: Dificultad, direccion: 'arriba' | 'abajo'): Promise<void> {
+    const lista = [...this.dificultades()].sort((a, b) => a.orden - b.orden);
+    const idx = lista.findIndex(x => x.nombre === d.nombre);
+    const swapIdx = direccion === 'arriba' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= lista.length) return;
+    const otro = lista[swapIdx];
+    const ordenA = d.orden;
+    const ordenB = otro.orden;
+    await Promise.all([
+      this.db.actualizarDificultad(d.nombre, { orden: ordenB }),
+      this.db.actualizarDificultad(otro.nombre, { orden: ordenA }),
+    ]);
+  }
+
+  selectColor(hex: string): void { this.editCatColor = hex; }
+
+  bloqueLabel(b: number): string { return BLOQUES_NOMBRE[b] || 'Sin bloque (CC individual)'; }
 }

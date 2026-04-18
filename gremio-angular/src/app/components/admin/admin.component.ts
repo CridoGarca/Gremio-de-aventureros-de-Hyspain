@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import Cropper from 'cropperjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { Usuario, Dificultad } from '../../models/models';
+import { Usuario, Dificultad, EntregaHistorial } from '../../models/models';
 import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
 import { DATA_BRUTA } from '../../constants/logros-data';
+import { COLOR_PALETTE } from '../misiones/misiones.component';
 
 @Component({
   selector: 'app-admin',
@@ -19,9 +20,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   @ViewChild('imgRecorteNoticia') imgRecorteNoticia!: ElementRef<HTMLImageElement>;
   private cropper: Cropper | null = null;
   private sub?: Subscription;
+  private subHistorial?: Subscription;
 
   usuarios: Usuario[] = [];
   dificultades: Dificultad[] = [];
+  historialEntregas: EntregaHistorial[] = [];
+  colorPalette = COLOR_PALETTE;
 
   // Noticia
   noticiaTitle = ''; noticiaContent = ''; imagenNoticia = ''; imgSrc = '';
@@ -32,7 +36,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   mensajeMisionOk = signal(false);
 
   // Nueva dificultad
-  nuevaDifNombre = ''; nuevaDifPuntos = 10;
+  nuevaDifNombre = ''; nuevaDifPuntos = 10; nuevaDifCc = 0; nuevaDifBloque = 0; nuevaDifColor = '#d4af37';
   mensajeDifOk = signal(false); mensajeDifError = '';
 
   // Roles
@@ -57,8 +61,9 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.misionDificultad = d[0].nombre;
       }
     });
+    this.subHistorial = this.db.getHistorialEntregas$().subscribe(h => this.historialEntregas = h);
   }
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  ngOnDestroy(): void { this.sub?.unsubscribe(); this.subHistorial?.unsubscribe(); }
 
   // ── Noticias ──────────────────────────────────────────────
   abrirRecorteNoticia(event: Event): void {
@@ -105,8 +110,17 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.mensajeDifError = 'Ya existe esa dificultad.'; return;
     }
     const orden = this.dificultades.length > 0 ? Math.max(...this.dificultades.map(d => d.orden)) + 1 : 1;
-    await this.db.crearDificultad({ nombre, puntos: this.nuevaDifPuntos, orden });
-    this.nuevaDifNombre = ''; this.nuevaDifPuntos = 10; this.mensajeDifError = '';
+    await this.db.crearDificultad({
+      nombre,
+      puntos: this.nuevaDifPuntos,
+      orden,
+      cc: this.nuevaDifCc || undefined,
+      bloque: this.nuevaDifBloque || undefined,
+      color: this.nuevaDifColor || undefined,
+    });
+    this.nuevaDifNombre = ''; this.nuevaDifPuntos = 10; this.nuevaDifCc = 0;
+    this.nuevaDifBloque = 0; this.nuevaDifColor = '#d4af37';
+    this.mensajeDifError = '';
     this.mensajeDifOk.set(true); setTimeout(() => this.mensajeDifOk.set(false), 3000);
   }
 
@@ -148,6 +162,21 @@ export class AdminComponent implements OnInit, OnDestroy {
   get usuariosPendientesXP(): typeof this.usuarios {
     return this.usuarios.filter(u => u.xpPendienteEntrega);
   }
+
+  // Resumen de entregas agrupado por mod
+  get resumenMods(): { mod: string; totalMisiones: number; totalDinero: number }[] {
+    const mapa = new Map<string, { totalMisiones: number; totalDinero: number }>();
+    for (const e of this.historialEntregas) {
+      const key = e.mod || 'Sistema';
+      const prev = mapa.get(key) || { totalMisiones: 0, totalDinero: 0 };
+      mapa.set(key, { totalMisiones: prev.totalMisiones + 1, totalDinero: prev.totalDinero + (e.dinero || 0) });
+    }
+    return Array.from(mapa.entries())
+      .map(([mod, v]) => ({ mod, ...v }))
+      .sort((a, b) => b.totalDinero - a.totalDinero);
+  }
+
+  selectNuevaDifColor(hex: string): void { this.nuevaDifColor = hex; }
 
   async marcarXpEntregada(nombre: string): Promise<void> {
     await this.db.actualizarUsuario(nombre, { xpPendienteEntrega: null });

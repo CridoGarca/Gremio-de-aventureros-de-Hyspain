@@ -6,7 +6,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Usuario, Mision, Noticia, Logro, Dificultad, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras } from '../models/models';
+import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras } from '../models/models';
 import { DATA_BRUTA } from '../constants/logros-data';
 import { FIRESTORE_TOKEN } from './firestore.token';
 
@@ -186,8 +186,27 @@ export class DbService {
     await setDoc(doc(this.fs, 'dificultades', d.nombre), d);
   }
 
+  async actualizarDificultad(nombre: string, data: Partial<Dificultad>): Promise<void> {
+    await updateDoc(doc(this.fs, 'dificultades', nombre), data as Record<string, unknown>);
+  }
+
   async eliminarDificultad(nombre: string): Promise<void> {
     await deleteDoc(doc(this.fs, 'dificultades', nombre));
+  }
+
+  // ── Historial de entregas (por mod) ─────────────────────────
+  getHistorialEntregas$(): Observable<EntregaHistorial[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'historial_entregas'), orderBy('fecha', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as EntregaHistorial)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearHistorialEntrega(e: EntregaHistorial): Promise<void> {
+    await setDoc(doc(this.fs, 'historial_entregas', e.id.toString()), e);
   }
 
   // ── Caballos: Escuderías ────────────────────────────────

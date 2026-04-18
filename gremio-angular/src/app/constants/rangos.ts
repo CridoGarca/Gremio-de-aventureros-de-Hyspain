@@ -3,10 +3,18 @@ export const PUNTOS_DIFICULTAD: { [key: string]: number } = {
 };
 
 export const COOLDOWNS_MS: { [key: string]: number } = {
-  'Fácil': 20 * 60 * 1000,
-  'Media': 30 * 60 * 1000,
-  'Difícil': 60 * 60 * 1000,
-  'Épica': 24 * 60 * 60 * 1000
+  'Pacífica': 5 * 60 * 1000,
+  'Pacificas': 5 * 60 * 1000,
+  'Fácil': 10 * 60 * 1000,
+  'Facil': 10 * 60 * 1000,
+  'Media': 15 * 60 * 1000,
+  'Difícil': 20 * 60 * 1000,
+  'Dificil': 20 * 60 * 1000,
+  'Muy difícil': 30 * 60 * 1000,
+  'Legendaria': 60 * 60 * 1000,
+  'Sombría': 2 * 60 * 60 * 1000,
+  'Demencial': 24 * 60 * 60 * 1000,
+  'Épica': 24 * 60 * 60 * 1000, // fallback para nombre antiguo
 };
 
 export const LIMITE_HISTORIAL: { [key: string]: number } = {

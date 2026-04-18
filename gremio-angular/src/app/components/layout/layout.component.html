@@ -37,9 +37,11 @@
         <i class="fa-solid fa-horse md:mr-2"></i><span class="hidden md:inline">Carreras</span></a>
 
       @if (auth.esAdmin()) {
-        <a routerLink="/app/admin" routerLinkActive="bg-yellow-800/60"
-          class="px-3 py-2 bg-yellow-900/40 text-yellow-400 font-bold rounded border border-yellow-600 shadow-[0_0_8px_rgba(212,175,55,0.4)] hover:bg-yellow-800/60 transition ml-2">
-          <i class="fa-solid fa-gavel mr-2"></i><span class="hidden md:inline">Consola</span></a>
+        @if (auth.esAdminPuro()) {
+          <a routerLink="/app/admin" routerLinkActive="bg-yellow-800/60"
+            class="px-3 py-2 bg-yellow-900/40 text-yellow-400 font-bold rounded border border-yellow-600 shadow-[0_0_8px_rgba(212,175,55,0.4)] hover:bg-yellow-800/60 transition ml-2">
+            <i class="fa-solid fa-gavel mr-2"></i><span class="hidden md:inline">Consola</span></a>
+        }
 
         <a routerLink="/app/seguimiento" routerLinkActive="bg-purple-800/60"
           class="px-3 py-2 bg-purple-900/40 text-purple-400 font-bold rounded border border-purple-600 shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:bg-purple-800/60 transition">
