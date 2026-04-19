@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { DbService } from './db.service';
 import { Usuario } from '../models/models';
-import { calcularRango } from '../constants/rangos';
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -50,7 +50,6 @@ export class AuthService {
       nombre, password, raza: '', faccion: '',
       foto: 'https://cdn-icons-png.flaticon.com/512/847/847969.png',
       puntos: 0, puntosSemanales: 0,
-      rango: calcularRango(0, 'Aventurero', nombre),
       rol: 'Aventurero', misionActiva: null,
       progresoLogros: {}, cooldownsMisiones: {},
       historialMisiones: { 'Fácil': [], 'Media': [], 'Difícil': [], 'Épica': [] }

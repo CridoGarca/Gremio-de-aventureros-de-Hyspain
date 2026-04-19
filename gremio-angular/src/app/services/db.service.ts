@@ -36,7 +36,7 @@ export class DbService {
         nombre: 'ADMIN', password: '0683843', raza: 'Desconocida',
         faccion: 'Maestro del Gremio',
         foto: 'https://cdn-icons-png.flaticon.com/512/847/847969.png',
-        puntos: 0, puntosSemanales: 0, rango: 'Leyenda', rol: 'ADMIN',
+        puntos: 0, puntosSemanales: 0, rol: 'ADMIN',
         misionActiva: null, progresoLogros: {}, cooldownsMisiones: {},
         historialMisiones: { 'FÃ¡cil': [], 'Media': [], 'DifÃ­cil': [], 'Ã‰pica': [] }
       });

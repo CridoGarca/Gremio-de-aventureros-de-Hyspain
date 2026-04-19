@@ -25,7 +25,6 @@ export interface Usuario {
   foto: string;
   puntos: number;
   puntosSemanales: number;
-  rango: string;
   rol: string;
   misionActiva: MisionActiva | null;
   progresoLogros: { [key: string]: number };

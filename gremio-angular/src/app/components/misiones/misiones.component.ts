@@ -6,7 +6,7 @@ import { catchError, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Mision, Dificultad } from '../../models/models';
-import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango } from '../../constants/rangos';
+import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL } from '../../constants/rangos';
 
 // Paleta de colores para categorías (solo ADMIN puede asignarlos)
 export const COLOR_PALETTE = [

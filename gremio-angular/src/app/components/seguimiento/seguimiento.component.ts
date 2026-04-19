@@ -6,7 +6,7 @@ import { catchError, map, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Usuario, Dificultad } from '../../models/models';
-import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL, calcularRango, colorRango } from '../../constants/rangos';
+import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL } from '../../constants/rangos';
 import { CATEGORIAS_RECURSOS } from '../../constants/logros-data';
 
 @Component({
@@ -42,7 +42,6 @@ export class SeguimientoComponent {
   modalPuntos = signal(false);
   nombreAjuste = '';
   valorAjuste = 0;
-  colorRango = colorRango;
 
   private puntosDificultad(dif: string): number {
     return this.dificultades().find(d => d.nombre === dif)?.puntos ?? PUNTOS_DIFICULTAD[dif] ?? 0;
@@ -72,7 +71,6 @@ export class SeguimientoComponent {
     const pts = this.puntosDificultad(dif);
     u.puntos = (u.puntos || 0) + pts;
     u.puntosSemanales = (u.puntosSemanales || 0) + pts;
-    u.rango = calcularRango(u.puntos, u.rol, u.nombre);
 
     // Cooldown por bloques
     if (!u.cooldownsMisiones) u.cooldownsMisiones = {};
@@ -167,10 +165,9 @@ export class SeguimientoComponent {
     if (!u) return;
     const puntos = Math.max(0, (u.puntos || 0) + this.valorAjuste);
     const puntosSemanales = Math.max(0, (u.puntosSemanales || 0) + this.valorAjuste);
-    const rango = calcularRango(puntos, u.rol, u.nombre);
-    await this.db.actualizarUsuario(u.nombre, { puntos, puntosSemanales, rango });
+    await this.db.actualizarUsuario(u.nombre, { puntos, puntosSemanales });
     const sesion = this.auth.usuario();
-    if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria({ ...sesion, puntos, puntosSemanales, rango });
+    if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria({ ...sesion, puntos, puntosSemanales });
     this.cerrarAjustePuntos();
   }
 }

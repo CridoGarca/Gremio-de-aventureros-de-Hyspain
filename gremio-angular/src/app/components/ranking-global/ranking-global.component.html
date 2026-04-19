@@ -22,7 +22,6 @@
             </div>
             <div [class]="'w-full flex flex-col items-center justify-end rounded-t-xl border-t border-l border-r p-2 pb-3 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] ' + podioClases($index).caja">
               <div [class]="podioClases($index).texto + ' font-bold text-white truncate w-full text-center fuente-gremio drop-shadow-md'">{{ u.nombre }}</div>
-              <div [class]="colorRango(u.rango) + ' text-xs md:text-sm font-bold mb-1'">{{ u.rango }}</div>
               <div class="font-black text-white bg-black/60 px-2 py-1 rounded w-full text-center border border-gray-700/50 text-sm shadow-inner">{{ u.puntos }} pts</div>
             </div>
           </div>
@@ -38,7 +37,6 @@
             <tr>
               <th class="p-4 text-center w-16">#</th>
               <th class="p-4">Aventurero</th>
-              <th class="p-4 text-center">Rango</th>
               <th class="p-4 text-center">Puntos Totales</th>
             </tr>
           </thead>
@@ -56,7 +54,6 @@
                     </div>
                   </div>
                 </td>
-                <td class="p-4 text-center"><span [class]="colorRango(u.rango) + ' font-bold text-lg'">{{ u.rango }}</span></td>
                 <td class="p-4 text-center font-bold text-white">{{ u.puntos }}</td>
               </tr>
             }

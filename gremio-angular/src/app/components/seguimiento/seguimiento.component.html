@@ -74,7 +74,7 @@
       <thead class="bg-neutral-800/80 text-yellow-500 border-b border-yellow-700/50">
         <tr>
           <th class="p-4">Aventurero</th>
-          <th class="p-4 text-center">Rango y Puntos</th>
+          <th class="p-4 text-center">Puntos</th>
           <th class="p-4">Misión Actual</th>
           <th class="p-4 text-center">Acción</th>
         </tr>
@@ -93,8 +93,7 @@
               </div>
             </td>
             <td class="p-4 text-center">
-              <div [class]="colorRango(u.rango) + ' text-lg'">{{ u.rango }}</div>
-              <div class="text-xs text-gray-400">{{ u.puntos }} pts</div>
+              <div class="font-bold text-white text-lg">{{ u.puntos }} pts</div>
             </td>
             <td class="p-4">
               @if (u.misionActiva) {

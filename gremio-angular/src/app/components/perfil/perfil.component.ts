@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import Cropper from 'cropperjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
-import { calcularRango, colorRango } from '../../constants/rangos';
+
 
 @Component({
   selector: 'app-perfil',
@@ -25,7 +25,6 @@ export class PerfilComponent implements OnInit {
   imgSrc = '';
   private cropper: Cropper | null = null;
   mensajeOk = signal(false);
-  colorRango = colorRango;
 
   constructor(public auth: AuthService, private db: DbService) {}
 

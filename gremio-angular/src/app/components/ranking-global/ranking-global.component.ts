@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/models';
-import { colorRango } from '../../constants/rangos';
+
 
 @Component({
   selector: 'app-ranking-global',
@@ -17,7 +17,6 @@ export class RankingGlobalComponent implements OnInit, OnDestroy {
   podio: (Usuario | undefined)[] = [];
   resto: Usuario[] = [];
   private sub?: Subscription;
-  colorRango = colorRango;
 
   constructor(public auth: AuthService, private db: DbService) {}
 
