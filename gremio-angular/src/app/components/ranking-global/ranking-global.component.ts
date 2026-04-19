@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of } from 'rxjs';
 import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/models';
-
 
 @Component({
   selector: 'app-ranking-global',
@@ -12,25 +12,26 @@ import { Usuario } from '../../models/models';
   imports: [CommonModule],
   templateUrl: './ranking-global.component.html'
 })
-export class RankingGlobalComponent implements OnInit, OnDestroy {
-  clasificados: Usuario[] = [];
-  podio: (Usuario | undefined)[] = [];
-  resto: Usuario[] = [];
-  private sub?: Subscription;
-
+export class RankingGlobalComponent {
   constructor(public auth: AuthService, private db: DbService) {}
 
-  ngOnInit(): void {
-    this.sub = this.db.getUsuarios$().subscribe(usuarios => {
-      this.clasificados = usuarios
-        .filter(u => u.rol !== 'ADMIN' && u.nombre !== 'ADMIN')
-        .sort((a, b) => b.puntos - a.puntos);
-      this.podio = [this.clasificados[1], this.clasificados[0], this.clasificados[2]];
-      this.resto = this.clasificados.slice(3);
-    });
-  }
+  private usuarios = toSignal(
+    this.db.getUsuarios$().pipe(
+      map(u => u
+        .filter(x => x.rol !== 'ADMIN' && x.nombre !== 'ADMIN')
+        .sort((a, b) => b.puntos - a.puntos)
+      ),
+      catchError(() => of([] as Usuario[]))
+    ),
+    { initialValue: [] as Usuario[] }
+  );
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  clasificados = computed(() => this.usuarios());
+  podio = computed(() => {
+    const u = this.usuarios();
+    return [u[1], u[0], u[2]];
+  });
+  resto = computed(() => this.usuarios().slice(3));
 
   podioClases(pos: number): { borde: string; img: string; texto: string; caja: string; icono: string } {
     if (pos === 0) return { borde: 'border-yellow-400', img: 'w-20 h-20 md:w-24 md:h-24', texto: 'text-lg md:text-xl', caja: 'h-40 md:h-48 bg-gradient-to-t from-yellow-900/60 to-black/40 border-yellow-600/50', icono: 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]' };

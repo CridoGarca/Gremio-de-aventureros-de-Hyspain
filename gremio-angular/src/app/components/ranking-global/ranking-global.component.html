@@ -6,11 +6,11 @@
   <p class="text-sm text-gray-400 mb-8">Los aventureros más formidables en toda la historia de Orbis.</p>
 
   <!-- Podio -->
-  @if (clasificados.length === 0) {
+  @if (clasificados().length === 0) {
     <div class="p-4 text-center text-gray-500">Aún no hay aventureros para clasificar.</div>
   } @else {
     <div class="flex justify-center items-end gap-2 md:gap-6 mb-10">
-      @for (u of podio; track $index) {
+      @for (u of podio(); track $index) {
         @if (u) {
           <div class="flex flex-col items-center justify-end w-28 md:w-40 animate-[fadeIn_0.5s_ease-in-out]">
             <div class="relative z-10 -mb-6 md:-mb-8">
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Tabla resto -->
-    @if (resto.length > 0) {
+    @if (resto().length > 0) {
       <div class="overflow-x-auto tabla-scroll rounded-lg border border-yellow-700/30 bg-black/40">
         <table class="w-full text-left text-sm text-gray-300 min-w-[600px]">
           <thead class="bg-neutral-800/80 text-yellow-500 border-b border-yellow-700/50">
@@ -41,7 +41,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (u of resto; track u.nombre; let i = $index) {
+            @for (u of resto(); track u.nombre; let i = $index) {
               <tr class="border-b border-gray-800 hover:bg-neutral-800/50 transition">
                 <td class="p-4 text-center w-16 font-bold text-gray-500">#{{ i + 4 }}</td>
                 <td class="p-4">
