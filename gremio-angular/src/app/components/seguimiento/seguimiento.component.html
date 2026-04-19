@@ -8,12 +8,14 @@
       <p class="text-gray-300 text-sm mb-1">¿Confirmas que <strong class="text-yellow-400">{{ nombreCompletando }}</strong> completó la misión?</p>
       <p class="text-gray-500 text-xs mb-5">Se le otorgarán puntos y logros correspondientes.</p>
 
-      <!-- Campo dinero entregado -->
-      <div class="mb-4">
-        <label class="block text-gray-400 text-sm mb-1"><i class="fa-solid fa-coins mr-1 text-yellow-500"></i>Dinero entregado en juego (CC / monedas)</label>
-        <input type="number" [(ngModel)]="dineroEntregado" min="0" placeholder="0"
-          class="w-full p-2.5 rounded text-white input-rol bg-black/50 text-center focus:border-yellow-500 transition-colors">
-      </div>
+      <!-- Campo dinero entregado — solo ADMIN puro -->
+      @if (auth.esAdminPuro()) {
+        <div class="mb-4">
+          <label class="block text-gray-400 text-sm mb-1"><i class="fa-solid fa-coins mr-1 text-yellow-500"></i>Dinero entregado en juego (CC / monedas)</label>
+          <input type="number" [(ngModel)]="dineroEntregado" min="0" placeholder="0"
+            class="w-full p-2.5 rounded text-white input-rol bg-black/50 text-center focus:border-yellow-500 transition-colors">
+        </div>
+      }
 
       <!-- Checkbox XP entregada — solo ADMIN puro -->
       @if (auth.esAdminPuro()) {

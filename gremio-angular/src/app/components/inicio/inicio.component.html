@@ -31,7 +31,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @for (n of noticias(); track n.id) {
       <div class="bg-black/50 border border-yellow-900/30 rounded-lg relative hover:border-yellow-700/50 transition shadow-[0_0_10px_rgba(0,0,0,0.3)] flex flex-col h-full overflow-hidden">
-        @if (auth.esAdmin()) {
+        @if (auth.esAdminPuro()) {
           <button (click)="eliminarNoticia(n.id)"
             class="absolute top-2 right-2 text-red-100 bg-red-600/80 hover:bg-red-600 p-2 rounded-full transition z-10"
             title="Eliminar noticia">

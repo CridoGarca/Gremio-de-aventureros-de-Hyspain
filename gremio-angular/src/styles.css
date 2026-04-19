@@ -39,6 +39,9 @@ h1, h2, h3, h4, .fuente-gremio { font-family: 'Cinzel', serif; }
   background: linear-gradient(to bottom right,#2a241e,#1c1814);
   border: 1px solid #5c4033; box-shadow: 2px 2px 8px rgba(0,0,0,0.8);
 }
+.pergamino-mision, .pergamino-mision * {
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
 .chincheta {
   width:12px; height:12px;
   background: radial-gradient(circle at 3px 3px,#e11d48,#881337);
