@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
@@ -13,7 +13,8 @@ import { Usuario } from '../../models/models';
   templateUrl: './ranking-global.component.html'
 })
 export class RankingGlobalComponent {
-  constructor(public auth: AuthService, private db: DbService) {}
+  public auth = inject(AuthService);
+  private db = inject(DbService);
 
   private usuarios = toSignal(
     this.db.getUsuarios$().pipe(
