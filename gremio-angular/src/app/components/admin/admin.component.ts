@@ -41,6 +41,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   // Misión
   misionTitulo = ''; misionDificultad = 'Fácil'; misionRecompensa = ''; misionMateriales = ''; misionDesc = '';
   misionOro = 0; misionPlata = 0; misionCobre = 0;
+  usaOro = false; usaPlata = false; usaCobre = false;
   mensajeMisionOk = signal(false);
 
   // Nueva dificultad
@@ -210,12 +211,13 @@ export class AdminComponent implements OnInit, OnDestroy {
       recompensa: this.misionRecompensa.trim(),
       materiales: this.misionMateriales.trim(),
       descripcion: this.misionDesc.trim(),
-      oro: this.misionOro || undefined,
-      plata: this.misionPlata || undefined,
-      cobre: this.misionCobre || undefined,
+      oro: this.usaOro ? (this.misionOro || undefined) : undefined,
+      plata: this.usaPlata ? (this.misionPlata || undefined) : undefined,
+      cobre: this.usaCobre ? (this.misionCobre || undefined) : undefined,
     });
     this.misionTitulo = ''; this.misionRecompensa = ''; this.misionMateriales = ''; this.misionDesc = '';
     this.misionOro = 0; this.misionPlata = 0; this.misionCobre = 0;
+    this.usaOro = false; this.usaPlata = false; this.usaCobre = false;
     this.mensajeMisionOk.set(true); setTimeout(() => this.mensajeMisionOk.set(false), 3000);
   }
 

@@ -346,20 +346,43 @@
       <!-- Recompensa en monedas -->
       <div class="md:col-span-2">
         <label class="block text-gray-400 text-sm mb-2"><i class="fa-solid fa-coins mr-1 text-yellow-500"></i>Recompensa en monedas (opcional)</label>
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs text-yellow-300 mb-1">🟡 Oro</label>
-            <input [(ngModel)]="misionOro" type="number" min="0" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
-          </div>
-          <div>
-            <label class="block text-xs text-gray-300 mb-1">⚪ Plata</label>
-            <input [(ngModel)]="misionPlata" type="number" min="0" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
-          </div>
-          <div>
-            <label class="block text-xs text-orange-400 mb-1">🟠 Cobre</label>
-            <input [(ngModel)]="misionCobre" type="number" min="0" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
-          </div>
+        <div class="flex flex-wrap gap-3">
+          <!-- Oro -->
+          <label class="flex items-center gap-2 cursor-pointer select-none bg-black/40 border border-yellow-700/40 rounded-lg px-3 py-2 hover:border-yellow-500/60 transition">
+            <input type="checkbox" [(ngModel)]="usaOro" class="accent-yellow-500 cursor-pointer">
+            <span class="text-yellow-300 text-sm font-bold">🟡 Oro</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer select-none bg-black/40 border border-gray-500/40 rounded-lg px-3 py-2 hover:border-gray-400/60 transition">
+            <input type="checkbox" [(ngModel)]="usaPlata" class="accent-gray-400 cursor-pointer">
+            <span class="text-gray-300 text-sm font-bold">⚪ Plata</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer select-none bg-black/40 border border-orange-700/40 rounded-lg px-3 py-2 hover:border-orange-500/60 transition">
+            <input type="checkbox" [(ngModel)]="usaCobre" class="accent-orange-400 cursor-pointer">
+            <span class="text-orange-400 text-sm font-bold">🟠 Cobre</span>
+          </label>
         </div>
+        @if (usaOro || usaPlata || usaCobre) {
+          <div class="grid grid-cols-3 gap-3 mt-3">
+            @if (usaOro) {
+              <div>
+                <label class="block text-xs text-yellow-300 mb-1">🟡 Cantidad de Oro</label>
+                <input [(ngModel)]="misionOro" type="number" min="1" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
+              </div>
+            }
+            @if (usaPlata) {
+              <div>
+                <label class="block text-xs text-gray-300 mb-1">⚪ Cantidad de Plata</label>
+                <input [(ngModel)]="misionPlata" type="number" min="1" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
+              </div>
+            }
+            @if (usaCobre) {
+              <div>
+                <label class="block text-xs text-orange-400 mb-1">🟠 Cantidad de Cobre</label>
+                <input [(ngModel)]="misionCobre" type="number" min="1" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
     <div class="mt-6 flex items-center justify-end gap-4">
