@@ -2,7 +2,7 @@
 import {
   Firestore,
   collection, doc, getDoc, getDocs,
-  setDoc, updateDoc, deleteDoc, writeBatch, query, orderBy,
+  setDoc, updateDoc, deleteDoc, writeBatch, query, orderBy, where,
   onSnapshot
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
@@ -211,6 +211,13 @@ export class DbService {
 
   async crearHistorialEntrega(e: EntregaHistorial): Promise<void> {
     await setDoc(doc(this.fs, 'historial_entregas', e.id.toString()), e);
+  }
+
+  async eliminarHistorialAventurero(nombre: string): Promise<void> {
+    const snap = await getDocs(query(collection(this.fs, 'historial_entregas'), where('aventurero', '==', nombre)));
+    const batch = writeBatch(this.fs);
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
   }
 
   // ── Caballos: Escuderías ────────────────────────────────

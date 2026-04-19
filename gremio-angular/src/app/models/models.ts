@@ -5,6 +5,9 @@ export interface MisionActiva {
   materiales: string;
   dificultad: string;
   descripcion: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
 }
 
 export interface XpPendiente {
@@ -15,6 +18,9 @@ export interface XpPendiente {
   dineroEntregado?: number;
   recompensa?: string;
   materiales?: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
 }
 
 export interface Usuario {
@@ -40,6 +46,9 @@ export interface Mision {
   recompensa: string;
   materiales: string;
   descripcion: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
 }
 
 export interface Noticia {
@@ -105,6 +114,9 @@ export interface EntregaHistorial {
   puntos: number;
   dinero: number;
   fecha: number;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
 }
 
 export interface NoticiaCarreras {

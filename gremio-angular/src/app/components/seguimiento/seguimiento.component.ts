@@ -123,6 +123,9 @@ export class SeguimientoComponent {
     // - MOD: siempre crea entrada pendiente, sin opción de marcarla como entregada
     const modActual = this.auth.usuario()?.nombre || 'Sistema';
     const esAdmin = this.auth.esAdminPuro();
+    const misionOro = u.misionActiva.oro;
+    const misionPlata = u.misionActiva.plata;
+    const misionCobre = u.misionActiva.cobre;
     u.xpPendienteEntrega = (esAdmin && xpYaEntregada)
       ? null
       : {
@@ -133,6 +136,9 @@ export class SeguimientoComponent {
           dineroEntregado: esAdmin ? dinero : 0,
           recompensa: u.misionActiva.recompensa || undefined,
           materiales: u.misionActiva.materiales || undefined,
+          oro: misionOro,
+          plata: misionPlata,
+          cobre: misionCobre,
         };
 
     const misionTitulo = u.misionActiva.titulo;
@@ -149,6 +155,9 @@ export class SeguimientoComponent {
       mision: misionTitulo,
       puntos: pts,
       dinero,
+      oro: misionOro,
+      plata: misionPlata,
+      cobre: misionCobre,
       fecha: Date.now()
     });
   }

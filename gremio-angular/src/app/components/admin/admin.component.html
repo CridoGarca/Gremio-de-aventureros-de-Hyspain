@@ -114,6 +114,20 @@
                     <i class="fa-solid fa-box-open mr-1"></i>Materiales: <strong>{{ u.xpPendienteEntrega!.materiales }}</strong>
                   </span>
                 }
+                @if (u.xpPendienteEntrega!.oro || u.xpPendienteEntrega!.plata || u.xpPendienteEntrega!.cobre) {
+                  <span class="text-xs text-yellow-500 block flex items-center gap-2 flex-wrap">
+                    <i class="fa-solid fa-coins mr-1"></i>Recompensa en monedas:
+                    @if (u.xpPendienteEntrega!.oro) {
+                      <span class="font-bold text-yellow-300">{{ u.xpPendienteEntrega!.oro }} 🟡 Oro</span>
+                    }
+                    @if (u.xpPendienteEntrega!.plata) {
+                      <span class="font-bold text-gray-300">{{ u.xpPendienteEntrega!.plata }} ⚪ Plata</span>
+                    }
+                    @if (u.xpPendienteEntrega!.cobre) {
+                      <span class="font-bold text-orange-400">{{ u.xpPendienteEntrega!.cobre }} 🟠 Cobre</span>
+                    }
+                  </span>
+                }
                 @if (u.xpPendienteEntrega!.dineroEntregado) {
                   <span class="text-xs text-yellow-600 block">
                     <i class="fa-solid fa-coins mr-1"></i>Dinero dado: <strong class="text-yellow-400">{{ u.xpPendienteEntrega!.dineroEntregado }}</strong>
@@ -142,7 +156,7 @@
       <h4 class="text-xl text-purple-400 mb-4 fuente-gremio border-b border-purple-900/50 pb-2 flex items-center gap-2">
         <i class="fa-solid fa-chart-bar"></i>Resumen de Mods (Historial de Entregas)
       </h4>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         @for (r of resumenMods; track r.mod) {
           <div class="bg-purple-950/30 border border-purple-800/40 rounded-lg px-4 py-3">
             <div class="font-bold text-purple-300 mb-1"><i class="fa-solid fa-user-shield mr-1"></i>{{ r.mod }}</div>
@@ -152,6 +166,21 @@
             </div>
           </div>
         }
+      </div>
+      <!-- Reset historial por aventurero -->
+      <div class="border-t border-purple-900/40 pt-4">
+        <p class="text-sm text-purple-300 mb-3 fuente-gremio"><i class="fa-solid fa-eraser mr-2"></i>Borrar historial de un aventurero</p>
+        <div class="flex gap-3 items-end">
+          <div class="flex-1">
+            <label class="block text-gray-400 text-xs mb-1">Seleccionar aventurero</label>
+            <input [(ngModel)]="buscarResetHistorial" list="lista-usuarios" placeholder="Escribe o selecciona..."
+              class="w-full p-2.5 rounded text-white input-rol bg-neutral-900">
+          </div>
+          <button (click)="resetearHistorialAventurero()"
+            class="px-4 py-2.5 bg-red-900/50 border border-red-700 text-red-300 hover:bg-red-800/70 rounded font-bold transition text-sm whitespace-nowrap">
+            <i class="fa-solid fa-rotate-left mr-2"></i>Resetear historial
+          </button>
+        </div>
       </div>
     </div>
   }
@@ -313,6 +342,24 @@
       <div class="md:col-span-2">
         <label class="block text-gray-400 text-sm mb-1">Descripción</label>
         <textarea [(ngModel)]="misionDesc" rows="3" placeholder="Detalla la misión. TIP: Si escribes '15 Copper Ore', se sumará a los logros al completarla." class="w-full p-2.5 rounded text-white input-rol"></textarea>
+      </div>
+      <!-- Recompensa en monedas -->
+      <div class="md:col-span-2">
+        <label class="block text-gray-400 text-sm mb-2"><i class="fa-solid fa-coins mr-1 text-yellow-500"></i>Recompensa en monedas (opcional)</label>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs text-yellow-300 mb-1">🟡 Oro</label>
+            <input [(ngModel)]="misionOro" type="number" min="0" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-300 mb-1">⚪ Plata</label>
+            <input [(ngModel)]="misionPlata" type="number" min="0" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
+          </div>
+          <div>
+            <label class="block text-xs text-orange-400 mb-1">🟠 Cobre</label>
+            <input [(ngModel)]="misionCobre" type="number" min="0" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
+          </div>
+        </div>
       </div>
     </div>
     <div class="mt-6 flex items-center justify-end gap-4">

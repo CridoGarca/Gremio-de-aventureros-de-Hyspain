@@ -40,6 +40,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   // Misión
   misionTitulo = ''; misionDificultad = 'Fácil'; misionRecompensa = ''; misionMateriales = ''; misionDesc = '';
+  misionOro = 0; misionPlata = 0; misionCobre = 0;
   mensajeMisionOk = signal(false);
 
   // Nueva dificultad
@@ -48,6 +49,9 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   // Roles
   buscarRolNombre = ''; rolSeleccionado = 'Aventurero'; mensajeRol = ''; mensajeRolColor = '';
+
+  // Reset historial
+  buscarResetHistorial = '';
 
   // Peligro
   buscarPeligroNombre = '';
@@ -200,9 +204,28 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ── Misiones ──────────────────────────────────────────────
   async crearMision(): Promise<void> {
     if (!this.misionTitulo.trim() || !this.misionDesc.trim()) { alert('Falta título o descripción.'); return; }
-    await this.db.crearMision({ titulo: this.misionTitulo.trim(), dificultad: this.misionDificultad, recompensa: this.misionRecompensa.trim(), materiales: this.misionMateriales.trim(), descripcion: this.misionDesc.trim() });
+    await this.db.crearMision({
+      titulo: this.misionTitulo.trim(),
+      dificultad: this.misionDificultad,
+      recompensa: this.misionRecompensa.trim(),
+      materiales: this.misionMateriales.trim(),
+      descripcion: this.misionDesc.trim(),
+      oro: this.misionOro || undefined,
+      plata: this.misionPlata || undefined,
+      cobre: this.misionCobre || undefined,
+    });
     this.misionTitulo = ''; this.misionRecompensa = ''; this.misionMateriales = ''; this.misionDesc = '';
+    this.misionOro = 0; this.misionPlata = 0; this.misionCobre = 0;
     this.mensajeMisionOk.set(true); setTimeout(() => this.mensajeMisionOk.set(false), 3000);
+  }
+
+  async resetearHistorialAventurero(): Promise<void> {
+    const nombre = this.buscarResetHistorial.trim();
+    if (!nombre) { alert('Selecciona un aventurero.'); return; }
+    if (!confirm(`¿Borrar todo el historial de entregas de ${nombre}? Esta acción no se puede deshacer.`)) return;
+    await this.db.eliminarHistorialAventurero(nombre);
+    this.buscarResetHistorial = '';
+    alert(`Historial de ${nombre} borrado.`);
   }
 
   // ── Roles ─────────────────────────────────────────────────

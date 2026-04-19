@@ -108,6 +108,14 @@
                 @if (u.misionActiva.recompensa) {
                   <p class="text-green-400 text-xs mt-1"><i class="fa-solid fa-gift mr-1"></i>{{ u.misionActiva.recompensa }}</p>
                 }
+                @if (u.misionActiva.oro || u.misionActiva.plata || u.misionActiva.cobre) {
+                  <p class="text-xs text-yellow-500 mt-1 flex items-center gap-2 flex-wrap">
+                    <i class="fa-solid fa-coins"></i>
+                    @if (u.misionActiva.oro) { <span class="font-bold text-yellow-300">{{ u.misionActiva.oro }} 🟡 Oro</span> }
+                    @if (u.misionActiva.plata) { <span class="font-bold text-gray-300">{{ u.misionActiva.plata }} ⚪ Plata</span> }
+                    @if (u.misionActiva.cobre) { <span class="font-bold text-orange-400">{{ u.misionActiva.cobre }} 🟠 Cobre</span> }
+                  </p>
+                }
               } @else {
                 <span class="text-gray-500 italic">Ninguna</span>
               }
