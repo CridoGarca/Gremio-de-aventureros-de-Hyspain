@@ -126,20 +126,21 @@ export class SeguimientoComponent {
     const misionOro = u.misionActiva.oro;
     const misionPlata = u.misionActiva.plata;
     const misionCobre = u.misionActiva.cobre;
-    u.xpPendienteEntrega = (esAdmin && xpYaEntregada)
-      ? null
-      : {
-          mision: u.misionActiva.titulo,
-          puntos: pts,
-          fecha: Date.now(),
-          aceptadoPor: modActual,
-          dineroEntregado: esAdmin ? dinero : 0,
-          recompensa: u.misionActiva.recompensa || undefined,
-          materiales: u.misionActiva.materiales || undefined,
-          oro: misionOro,
-          plata: misionPlata,
-          cobre: misionCobre,
-        };
+
+    const xpPendiente: any = {
+      mision: u.misionActiva.titulo,
+      puntos: pts,
+      fecha: Date.now(),
+      aceptadoPor: modActual,
+      dineroEntregado: esAdmin ? dinero : 0,
+    };
+    if (u.misionActiva.recompensa) xpPendiente.recompensa = u.misionActiva.recompensa;
+    if (u.misionActiva.materiales) xpPendiente.materiales = u.misionActiva.materiales;
+    if (misionOro) xpPendiente.oro = misionOro;
+    if (misionPlata) xpPendiente.plata = misionPlata;
+    if (misionCobre) xpPendiente.cobre = misionCobre;
+
+    u.xpPendienteEntrega = (esAdmin && xpYaEntregada) ? null : xpPendiente;
 
     const misionTitulo = u.misionActiva.titulo;
     u.misionActiva = null;
@@ -148,18 +149,19 @@ export class SeguimientoComponent {
     if (sesion?.nombre === u.nombre) this.auth.actualizarUsuarioEnMemoria(u);
 
     // Guardar en historial de entregas
-    await this.db.crearHistorialEntrega({
+    const entrega: any = {
       id: Date.now(),
       mod: modActual,
       aventurero: nombreAventurero,
       mision: misionTitulo,
       puntos: pts,
       dinero,
-      oro: misionOro,
-      plata: misionPlata,
-      cobre: misionCobre,
-      fecha: Date.now()
-    });
+      fecha: Date.now(),
+    };
+    if (misionOro) entrega.oro = misionOro;
+    if (misionPlata) entrega.plata = misionPlata;
+    if (misionCobre) entrega.cobre = misionCobre;
+    await this.db.crearHistorialEntrega(entrega);
   }
 
   abrirAjustePuntos(nombre: string): void {

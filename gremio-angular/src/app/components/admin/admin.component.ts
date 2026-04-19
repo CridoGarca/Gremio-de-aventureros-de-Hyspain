@@ -205,16 +205,17 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ── Misiones ──────────────────────────────────────────────
   async crearMision(): Promise<void> {
     if (!this.misionTitulo.trim() || !this.misionDesc.trim()) { alert('Falta título o descripción.'); return; }
-    await this.db.crearMision({
+    const mision: any = {
       titulo: this.misionTitulo.trim(),
       dificultad: this.misionDificultad,
       recompensa: this.misionRecompensa.trim(),
       materiales: this.misionMateriales.trim(),
       descripcion: this.misionDesc.trim(),
-      oro: this.usaOro ? (this.misionOro || undefined) : undefined,
-      plata: this.usaPlata ? (this.misionPlata || undefined) : undefined,
-      cobre: this.usaCobre ? (this.misionCobre || undefined) : undefined,
-    });
+    };
+    if (this.usaOro && this.misionOro > 0) mision.oro = this.misionOro;
+    if (this.usaPlata && this.misionPlata > 0) mision.plata = this.misionPlata;
+    if (this.usaCobre && this.misionCobre > 0) mision.cobre = this.misionCobre;
+    await this.db.crearMision(mision);
     this.misionTitulo = ''; this.misionRecompensa = ''; this.misionMateriales = ''; this.misionDesc = '';
     this.misionOro = 0; this.misionPlata = 0; this.misionCobre = 0;
     this.usaOro = false; this.usaPlata = false; this.usaCobre = false;
