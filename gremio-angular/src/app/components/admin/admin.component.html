@@ -362,21 +362,21 @@
           </label>
         </div>
         @if (usaOro || usaPlata || usaCobre) {
-          <div class="grid grid-cols-3 gap-3 mt-3">
+          <div class="flex flex-wrap gap-3 mt-3">
             @if (usaOro) {
-              <div>
+              <div class="flex-1 min-w-[120px]">
                 <label class="block text-xs text-yellow-300 mb-1">🟡 Cantidad de Oro</label>
                 <input [(ngModel)]="misionOro" type="number" min="1" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
               </div>
             }
             @if (usaPlata) {
-              <div>
+              <div class="flex-1 min-w-[120px]">
                 <label class="block text-xs text-gray-300 mb-1">⚪ Cantidad de Plata</label>
                 <input [(ngModel)]="misionPlata" type="number" min="1" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
               </div>
             }
             @if (usaCobre) {
-              <div>
+              <div class="flex-1 min-w-[120px]">
                 <label class="block text-xs text-orange-400 mb-1">🟠 Cantidad de Cobre</label>
                 <input [(ngModel)]="misionCobre" type="number" min="1" placeholder="0" class="w-full p-2.5 rounded text-white input-rol text-center">
               </div>
