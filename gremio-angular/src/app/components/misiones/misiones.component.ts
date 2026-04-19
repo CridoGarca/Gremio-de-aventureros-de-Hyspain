@@ -127,8 +127,12 @@ export class MisionesComponent {
       const lim = LIMITE_HISTORIAL[m.dificultad] || 6;
       alert(`Debes completar otras ${lim} misiones de dificultad ${m.dificultad} antes de poder repetir esta.`); return;
     }
-    u.misionActiva = { id: m.id, titulo: m.titulo, recompensa: m.recompensa, materiales: m.materiales || '', dificultad: m.dificultad, descripcion: m.descripcion, oro: m.oro, plata: m.plata, cobre: m.cobre };
-    await this.db.actualizarUsuario(u.nombre, { misionActiva: u.misionActiva });
+    const misionActiva: any = { id: m.id, titulo: m.titulo, recompensa: m.recompensa, materiales: m.materiales || '', dificultad: m.dificultad, descripcion: m.descripcion };
+    if (m.oro) misionActiva.oro = m.oro;
+    if (m.plata) misionActiva.plata = m.plata;
+    if (m.cobre) misionActiva.cobre = m.cobre;
+    u.misionActiva = misionActiva;
+    await this.db.actualizarUsuario(u.nombre, { misionActiva });
     this.auth.actualizarUsuarioEnMemoria(u);
   }
 
