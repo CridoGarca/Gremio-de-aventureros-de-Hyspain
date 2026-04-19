@@ -21,10 +21,15 @@ export class LoginComponent {
   async adentrarse(): Promise<void> {
     this.error.set('');
     this.cargando.set(true);
-    const err = await this.auth.login(this.nombre.trim(), this.password.trim());
-    this.cargando.set(false);
-    if (err) { this.error.set(err); return; }
-    this.router.navigate(['/app/inicio']);
+    try {
+      const err = await this.auth.login(this.nombre.trim(), this.password.trim());
+      if (err) { this.error.set(err); return; }
+      this.router.navigate(['/app/inicio']);
+    } catch {
+      this.error.set('Error al conectar. Inténtalo de nuevo.');
+    } finally {
+      this.cargando.set(false);
+    }
   }
 
   async firmarContrato(): Promise<void> {

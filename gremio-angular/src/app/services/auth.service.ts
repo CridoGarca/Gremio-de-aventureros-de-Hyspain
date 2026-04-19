@@ -33,12 +33,11 @@ export class AuthService {
 
   async login(nombre: string, password: string): Promise<string | null> {
     const user = await this.db.getUsuario(nombre);
-    if (user && user.password === password) {
-      this._usuario.set(user);
-      localStorage.setItem('gremio_sesion', user.nombre);
-      return null;
-    }
-    return 'Nombre o contraseña incorrectos.';
+    if (!user) return 'Aventurero no registrado. ¿Quizás quieres firmar un contrato?';
+    if (user.password !== password) return 'Contraseña incorrecta.';
+    this._usuario.set(user);
+    localStorage.setItem('gremio_sesion', user.nombre);
+    return null;
   }
 
   async registrar(nombre: string, password: string): Promise<string | null> {
