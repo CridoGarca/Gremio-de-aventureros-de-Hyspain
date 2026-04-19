@@ -7,6 +7,7 @@ import { DbService } from '../../services/db.service';
 import { AuthService } from '../../services/auth.service';
 import { Mision, Dificultad } from '../../models/models';
 import { PUNTOS_DIFICULTAD, COOLDOWNS_MS, LIMITE_HISTORIAL } from '../../constants/rangos';
+import { deleteField } from 'firebase/firestore';
 
 // Paleta de colores para categorías (solo ADMIN puede asignarlos)
 export const COLOR_PALETTE = [
@@ -184,13 +185,13 @@ export class MisionesComponent {
 
   async guardarEditarCat(): Promise<void> {
     const nombre = this.editCatNombre;
-    const datos: Partial<Dificultad> = {
+    const datos: Record<string, unknown> = {
       puntos: this.editCatPuntos,
       cc: this.editCatCc,
       orden: this.editCatOrden,
       color: this.editCatColor,
-      bloque: this.editCatBloque || undefined,
-      fondo: this.editCatFondo || undefined,
+      bloque: this.editCatBloque ? this.editCatBloque : deleteField(),
+      fondo: this.editCatFondo ? this.editCatFondo : deleteField(),
     };
     await this.db.actualizarDificultad(nombre, datos);
     this.cerrarEditarCat();

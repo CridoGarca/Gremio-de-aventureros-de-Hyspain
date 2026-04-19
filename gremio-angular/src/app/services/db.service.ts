@@ -3,7 +3,7 @@ import {
   Firestore,
   collection, doc, getDoc, getDocs,
   setDoc, updateDoc, deleteDoc, writeBatch, query, orderBy, where,
-  onSnapshot
+  onSnapshot, deleteField
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras } from '../models/models';
@@ -190,8 +190,8 @@ export class DbService {
     await setDoc(doc(this.fs, 'dificultades', d.nombre), d);
   }
 
-  async actualizarDificultad(nombre: string, data: Partial<Dificultad>): Promise<void> {
-    await updateDoc(doc(this.fs, 'dificultades', nombre), data as Record<string, unknown>);
+  async actualizarDificultad(nombre: string, data: Record<string, unknown>): Promise<void> {
+    await updateDoc(doc(this.fs, 'dificultades', nombre), data);
   }
 
   async eliminarDificultad(nombre: string): Promise<void> {
