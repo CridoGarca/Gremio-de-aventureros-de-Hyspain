@@ -33,7 +33,7 @@ export class AuthService {
 
   async login(nombre: string, password: string): Promise<string | null> {
     const user = await this.db.getUsuario(nombre);
-    if (!user) return 'Aventurero no registrado. ¿Quizás quieres firmar un contrato?';
+    if (!user) return 'Usuario no encontrado. En caso de ser su primera vez, seleccione "Firmar Contrato" (Registrar). Si no es así, asegúrese de que las claves son correctas.';
     if (user.password !== password) return 'Contraseña incorrecta.';
     this._usuario.set(user);
     localStorage.setItem('gremio_sesion', user.nombre);
