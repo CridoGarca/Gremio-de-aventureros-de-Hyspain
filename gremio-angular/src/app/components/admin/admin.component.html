@@ -162,7 +162,12 @@
             <div class="font-bold text-purple-300 mb-1"><i class="fa-solid fa-user-shield mr-1"></i>{{ r.mod }}</div>
             <div class="text-sm text-gray-400 flex justify-between">
               <span><i class="fa-solid fa-check-double mr-1 text-green-500"></i>{{ r.totalMisiones }} aprobadas</span>
-              <span class="text-yellow-400 font-bold"><i class="fa-solid fa-coins mr-1"></i>{{ r.totalDinero }} monedas</span>
+              <span class="font-bold flex items-center gap-2 flex-wrap">
+                @if (r.oro) { <span class="text-yellow-300">{{ r.oro }} 🟡 Oro</span> }
+                @if (r.plata) { <span class="text-gray-300">{{ r.plata }} ⚪ Plata</span> }
+                @if (r.cobre) { <span class="text-orange-400">{{ r.cobre }} 🟠 Cobre</span> }
+                @if (!r.oro && !r.plata && !r.cobre) { <span class="text-gray-500">0 monedas</span> }
+              </span>
             </div>
           </div>
         }

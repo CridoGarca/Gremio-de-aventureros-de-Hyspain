@@ -258,16 +258,28 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   // Resumen de entregas agrupado por mod
-  get resumenMods(): { mod: string; totalMisiones: number; totalDinero: number }[] {
-    const mapa = new Map<string, { totalMisiones: number; totalDinero: number }>();
+  get resumenMods(): { mod: string; totalMisiones: number; oro: number; plata: number; cobre: number }[] {
+    const mapa = new Map<string, { totalMisiones: number; oro: number; plata: number; cobre: number }>();
     for (const e of this.historialEntregas) {
       const key = e.mod || 'Sistema';
-      const prev = mapa.get(key) || { totalMisiones: 0, totalDinero: 0 };
-      mapa.set(key, { totalMisiones: prev.totalMisiones + 1, totalDinero: prev.totalDinero + (e.dinero || 0) });
+      const prev = mapa.get(key) || { totalMisiones: 0, oro: 0, plata: 0, cobre: 0 };
+      mapa.set(key, {
+        totalMisiones: prev.totalMisiones + 1,
+        oro: prev.oro + (e.oro || 0),
+        plata: prev.plata + (e.plata || 0),
+        cobre: prev.cobre + (e.cobre || 0),
+      });
     }
     return Array.from(mapa.entries())
-      .map(([mod, v]) => ({ mod, ...v }))
-      .sort((a, b) => b.totalDinero - a.totalDinero);
+      .map(([mod, v]) => {
+        let cobre = v.cobre;
+        let plata = v.plata + Math.floor(cobre / 100);
+        cobre = cobre % 100;
+        let oro = v.oro + Math.floor(plata / 100);
+        plata = plata % 100;
+        return { mod, totalMisiones: v.totalMisiones, oro, plata, cobre };
+      })
+      .sort((a, b) => (b.oro * 10000 + b.plata * 100 + b.cobre) - (a.oro * 10000 + a.plata * 100 + a.cobre));
   }
 
   selectNuevaDifColor(hex: string): void { this.nuevaDifColor = hex; }
