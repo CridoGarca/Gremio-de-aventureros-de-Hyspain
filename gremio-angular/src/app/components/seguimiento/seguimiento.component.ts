@@ -76,21 +76,20 @@ export class SeguimientoComponent {
     if (!u.cooldownsMisiones) u.cooldownsMisiones = {};
     const dificultadObj = this.dificultades().find(d => d.nombre === dif);
     const bloque = dificultadObj?.bloque != null ? Number(dificultadObj.bloque) : 0;
-    const ccMs = dificultadObj?.cc
-      ? dificultadObj.cc * 60 * 1000
-      : (COOLDOWNS_MS[dif] || 0);
 
     if (bloque === 3) {
       // Bloque especial: sin cooldown
     } else if (bloque >= 1) {
-      // CC compartido: entran en cooldown TODAS las dificultades del mismo bloque
+      // CC compartido: cada dificultad del bloque entra con SU PROPIO cooldown
       this.dificultades().forEach(d => {
         if (Number(d.bloque) === bloque) {
-          u.cooldownsMisiones[d.nombre] = Date.now() + ccMs;
+          const dCcMs = d.cc ? d.cc * 60 * 1000 : (COOLDOWNS_MS[d.nombre] || 0);
+          u.cooldownsMisiones[d.nombre] = Date.now() + dCcMs;
         }
       });
     } else {
-      // Sin bloque (0): cooldown individual solo para esta dificultad
+      // Sin bloque (0): cooldown individual de esta dificultad
+      const ccMs = dificultadObj?.cc ? dificultadObj.cc * 60 * 1000 : (COOLDOWNS_MS[dif] || 0);
       u.cooldownsMisiones[dif] = Date.now() + ccMs;
     }
 
