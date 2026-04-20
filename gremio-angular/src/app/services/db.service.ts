@@ -107,11 +107,7 @@ export class DbService {
   }
 
   async actualizarUsuario(nombre: string, data: Partial<Usuario>): Promise<void> {
-    try {
-      await updateDoc(doc(this.fs, 'usuarios', nombre.toLowerCase()), data as Record<string, unknown>);
-    } catch {
-      await updateDoc(doc(this.fs, 'usuarios', nombre), data as Record<string, unknown>);
-    }
+    await updateDoc(doc(this.fs, 'usuarios', nombre.toLowerCase()), data as Record<string, unknown>);
   }
 
   async eliminarUsuario(nombre: string): Promise<void> {
