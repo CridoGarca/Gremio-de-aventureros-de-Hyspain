@@ -37,6 +37,9 @@ export interface Usuario {
   cooldownsMisiones: { [key: string]: number };
   historialMisiones: { [key: string]: number[] };
   xpPendienteEntrega?: XpPendiente | null;
+  oroTotal?: number;
+  plataTotal?: number;
+  cobreTotal?: number;
 }
 
 export interface Mision {

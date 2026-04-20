@@ -30,6 +30,24 @@
           <label class="block text-gray-400 text-sm mb-1">Descripción</label>
           <textarea [(ngModel)]="editDescripcion" rows="3" class="w-full p-2.5 rounded text-white input-rol"></textarea>
         </div>
+        <!-- Monedas -->
+        <div class="md:col-span-2">
+          <label class="block text-gray-400 text-sm mb-2"><i class="fa-solid fa-coins mr-1 text-yellow-600"></i>Monedas de recompensa</label>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-yellow-400 text-xs mb-1"><i class="fa-solid fa-circle text-yellow-400 mr-1"></i>Oro</label>
+              <input [(ngModel)]="editOro" type="number" min="0" class="w-full p-2 rounded text-white input-rol text-center">
+            </div>
+            <div>
+              <label class="block text-gray-300 text-xs mb-1"><i class="fa-solid fa-circle text-gray-300 mr-1"></i>Plata</label>
+              <input [(ngModel)]="editPlata" type="number" min="0" class="w-full p-2 rounded text-white input-rol text-center">
+            </div>
+            <div>
+              <label class="block text-orange-400 text-xs mb-1"><i class="fa-solid fa-circle text-orange-400 mr-1"></i>Cobre</label>
+              <input [(ngModel)]="editCobre" type="number" min="0" class="w-full p-2 rounded text-white input-rol text-center">
+            </div>
+          </div>
+        </div>
       </div>
       <div class="flex justify-end gap-3 mt-6">
         <button (click)="cerrarEditar()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>

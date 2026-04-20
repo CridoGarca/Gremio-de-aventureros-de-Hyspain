@@ -78,6 +78,7 @@ export class MisionesComponent {
   modalEditar = signal(false);
   editId: number | null = null;
   editTitulo = ''; editDificultad = 'Fácil'; editRecompensa = ''; editMateriales = ''; editDescripcion = '';
+  editOro = 0; editPlata = 0; editCobre = 0;
 
   // Modal editar categoría (dificultad)
   modalEditarCat = signal(false);
@@ -153,6 +154,7 @@ export class MisionesComponent {
     this.editId = m.id; this.editTitulo = m.titulo;
     this.editDificultad = m.dificultad; this.editRecompensa = m.recompensa;
     this.editMateriales = m.materiales || ''; this.editDescripcion = m.descripcion;
+    this.editOro = m.oro || 0; this.editPlata = m.plata || 0; this.editCobre = m.cobre || 0;
     this.modalEditar.set(true);
   }
 
@@ -160,11 +162,15 @@ export class MisionesComponent {
 
   async guardarEdicion(): Promise<void> {
     if (!this.editId) return;
-    await this.db.actualizarMision(this.editId, {
+    const data: Record<string, unknown> = {
       titulo: this.editTitulo, dificultad: this.editDificultad,
       recompensa: this.editRecompensa, materiales: this.editMateriales,
-      descripcion: this.editDescripcion
-    });
+      descripcion: this.editDescripcion,
+      oro: this.editOro > 0 ? this.editOro : deleteField(),
+      plata: this.editPlata > 0 ? this.editPlata : deleteField(),
+      cobre: this.editCobre > 0 ? this.editCobre : deleteField(),
+    };
+    await this.db.actualizarMision(this.editId, data as Partial<Mision>);
     this.cerrarEditar();
   }
 

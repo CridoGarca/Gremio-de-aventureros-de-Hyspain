@@ -61,11 +61,12 @@
   <p class="text-sm text-gray-400 mb-4">Supervisa y aprueba las misiones completadas.</p>
 
   <div class="overflow-x-auto tabla-scroll rounded-lg border border-gray-700/50 bg-black/40">
-    <table class="w-full text-left text-sm text-gray-300 min-w-[800px]">
+    <table class="w-full text-left text-sm text-gray-300 min-w-[900px]">
       <thead class="bg-neutral-800/80 text-yellow-500 border-b border-yellow-700/50">
         <tr>
           <th class="p-4">Aventurero</th>
           <th class="p-4 text-center">Puntos</th>
+          <th class="p-4 text-center">Monedas totales</th>
           <th class="p-4">Misión Actual</th>
           <th class="p-4 text-center">Acción</th>
         </tr>
@@ -85,6 +86,17 @@
             </td>
             <td class="p-4 text-center">
               <div class="font-bold text-white text-lg">{{ u.puntos }} pts</div>
+            </td>
+            <td class="p-4 text-center">
+              @if (u.oroTotal || u.plataTotal || u.cobreTotal) {
+                <div class="flex flex-col items-center gap-1 text-xs">
+                  @if (u.oroTotal) { <span class="text-yellow-300 font-bold"><i class="fa-solid fa-circle text-yellow-400 mr-1"></i>{{ u.oroTotal }} Oro</span> }
+                  @if (u.plataTotal) { <span class="text-gray-300 font-bold"><i class="fa-solid fa-circle text-gray-300 mr-1"></i>{{ u.plataTotal }} Plata</span> }
+                  @if (u.cobreTotal) { <span class="text-orange-400 font-bold"><i class="fa-solid fa-circle text-orange-400 mr-1"></i>{{ u.cobreTotal }} Cobre</span> }
+                </div>
+              } @else {
+                <span class="text-gray-600 text-xs italic">—</span>
+              }
             </td>
             <td class="p-4">
               @if (u.misionActiva) {

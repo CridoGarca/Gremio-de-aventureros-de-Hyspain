@@ -126,6 +126,11 @@ export class SeguimientoComponent {
     const misionPlata = u.misionActiva.plata;
     const misionCobre = u.misionActiva.cobre;
 
+    // Acumular monedas totales del usuario
+    if (misionOro) u.oroTotal = (u.oroTotal || 0) + misionOro;
+    if (misionPlata) u.plataTotal = (u.plataTotal || 0) + misionPlata;
+    if (misionCobre) u.cobreTotal = (u.cobreTotal || 0) + misionCobre;
+
     const xpPendiente: any = {
       mision: u.misionActiva.titulo,
       puntos: pts,

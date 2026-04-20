@@ -6,7 +6,6 @@ import { InicioComponent } from './components/inicio/inicio.component';
 import { PerfilComponent } from './components/perfil/perfil.component';
 import { MisionesComponent } from './components/misiones/misiones.component';
 import { RankingGlobalComponent } from './components/ranking-global/ranking-global.component';
-import { RankingSemanalComponent } from './components/ranking-semanal/ranking-semanal.component';
 import { LogrosComponent } from './components/logros/logros.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
@@ -23,7 +22,7 @@ export const routes: Routes = [
       { path: 'perfil', component: PerfilComponent },
       { path: 'misiones', component: MisionesComponent },
       { path: 'ranking-global', component: RankingGlobalComponent },
-      { path: 'ranking-semanal', component: RankingSemanalComponent },
+      { path: 'ranking-semanal', redirectTo: 'ranking-global', pathMatch: 'full' },
       { path: 'logros', component: LogrosComponent },
       { path: 'caballos', component: CaballosComponent },
       { path: 'admin', component: AdminComponent, canActivate: [adminPuroGuard] },
