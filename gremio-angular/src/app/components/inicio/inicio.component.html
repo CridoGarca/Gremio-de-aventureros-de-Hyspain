@@ -2,18 +2,51 @@
   <!-- Banner de bienvenida -->
   <div class="bg-black/40 border border-yellow-700/30 p-8 rounded-lg mb-8 text-center relative overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)]">
     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
-    <h2 class="text-4xl text-yellow-500 fuente-gremio font-bold mb-6 drop-shadow-lg">¡Bienvenid&#64;s, aventurer&#64;s!</h2>
-    <p class="text-lg text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed">
-      En esta web podrás seguir y controlar tu avance dentro del gremio. Explora los diferentes apartados,
-      completa tu perfil y añade tu foto para mejorar tu presencia en el ranking.
-    </p>
-    <p class="text-lg text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-      Compite con el resto de aventureros, asciende posiciones y demuestra tu valía.
-    </p>
-    <div class="inline-block border-y border-yellow-700/50 py-5 px-10 bg-black/60 rounded">
-      <p class="text-sm text-gray-400 mb-2 uppercase tracking-widest">Recuerda siempre nuestro lema:</p>
-      <p class="text-2xl text-yellow-400 fuente-gremio italic font-bold tracking-wide">"Nuestra espada no tiene bando, nuestra palabra no tiene precio."</p>
-    </div>
+
+    @if (auth.esAdminPuro()) {
+      <button (click)="abrirEdicionBanner()"
+        class="absolute top-3 right-3 text-xs text-yellow-400 border border-yellow-700/50 bg-black/60 hover:bg-yellow-900/40 px-3 py-1.5 rounded transition flex items-center gap-1">
+        <i class="fa-solid fa-pen-to-square"></i> Editar banner
+      </button>
+    }
+
+    @if (editandoBanner()) {
+      <!-- Formulario de edición inline -->
+      <div class="text-left space-y-4 mt-4">
+        <div>
+          <label class="block text-gray-400 text-xs mb-1 uppercase tracking-widest">Título</label>
+          <input [(ngModel)]="bannerEdit.titulo" class="w-full p-2.5 rounded bg-neutral-900 border border-yellow-700/40 text-yellow-400 fuente-gremio text-xl font-bold focus:outline-none focus:border-yellow-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 text-xs mb-1 uppercase tracking-widest">Párrafo 1</label>
+          <textarea [(ngModel)]="bannerEdit.parrafo1" rows="3" class="w-full p-2.5 rounded bg-neutral-900 border border-gray-700 text-gray-300 text-sm focus:outline-none focus:border-yellow-500 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-gray-400 text-xs mb-1 uppercase tracking-widest">Párrafo 2</label>
+          <textarea [(ngModel)]="bannerEdit.parrafo2" rows="2" class="w-full p-2.5 rounded bg-neutral-900 border border-gray-700 text-gray-300 text-sm focus:outline-none focus:border-yellow-500 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-gray-400 text-xs mb-1 uppercase tracking-widest">Etiqueta del lema</label>
+          <input [(ngModel)]="bannerEdit.lemaLabel" class="w-full p-2.5 rounded bg-neutral-900 border border-gray-700 text-gray-400 text-sm focus:outline-none focus:border-yellow-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 text-xs mb-1 uppercase tracking-widest">Texto del lema</label>
+          <input [(ngModel)]="bannerEdit.lemaTexto" class="w-full p-2.5 rounded bg-neutral-900 border border-yellow-700/40 text-yellow-400 fuente-gremio font-bold focus:outline-none focus:border-yellow-500">
+        </div>
+        <div class="flex gap-3 justify-end pt-2">
+          <button (click)="cerrarEdicionBanner()" class="px-4 py-2 bg-neutral-800 border border-gray-600 text-gray-300 rounded hover:bg-neutral-700 transition text-sm">Cancelar</button>
+          <button (click)="guardarBanner()" class="px-4 py-2 bg-yellow-700 hover:bg-yellow-600 text-white rounded font-bold transition text-sm"><i class="fa-solid fa-floppy-disk mr-1"></i>Guardar</button>
+        </div>
+      </div>
+    } @else {
+      <h2 class="text-4xl text-yellow-500 fuente-gremio font-bold mb-6 drop-shadow-lg">{{ banner().titulo }}</h2>
+      <p class="text-lg text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed">{{ banner().parrafo1 }}</p>
+      <p class="text-lg text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">{{ banner().parrafo2 }}</p>
+      <div class="inline-block border-y border-yellow-700/50 py-5 px-10 bg-black/60 rounded">
+        <p class="text-sm text-gray-400 mb-2 uppercase tracking-widest">{{ banner().lemaLabel }}</p>
+        <p class="text-2xl text-yellow-400 fuente-gremio italic font-bold tracking-wide">{{ banner().lemaTexto }}</p>
+      </div>
+    }
   </div>
 
   <!-- Noticias -->

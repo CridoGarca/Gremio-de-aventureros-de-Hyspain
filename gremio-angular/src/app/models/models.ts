@@ -122,6 +122,14 @@ export interface EntregaHistorial {
   cobre?: number;
 }
 
+export interface BannerInicio {
+  titulo: string;
+  parrafo1: string;
+  parrafo2: string;
+  lemaLabel: string;
+  lemaTexto: string;
+}
+
 export interface NoticiaCarreras {
   id: number;
   titulo: string;

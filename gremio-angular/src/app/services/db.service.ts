@@ -6,7 +6,7 @@ import {
   onSnapshot, deleteField
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras } from '../models/models';
+import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras, BannerInicio } from '../models/models';
 import { DATA_BRUTA } from '../constants/logros-data';
 import { FIRESTORE_TOKEN } from './firestore.token';
 
@@ -159,6 +159,29 @@ export class DbService {
 
   async eliminarNoticia(id: number): Promise<void> {
     await deleteDoc(doc(this.fs, 'noticias', id.toString()));
+  }
+
+  // ── Banner Inicio ──────────────────────────────────────────
+  readonly BANNER_DEFAULT: BannerInicio = {
+    titulo: '¡Bienvenid@s, aventurer@s!',
+    parrafo1: 'En esta web podrás seguir y controlar tu avance dentro del gremio. Explora los diferentes apartados, completa tu perfil y añade tu foto para mejorar tu presencia en el ranking.',
+    parrafo2: 'Compite con el resto de aventureros, asciende posiciones y demuestra tu valía.',
+    lemaLabel: 'Recuerda siempre nuestro lema:',
+    lemaTexto: '"Nuestra espada no tiene bando, nuestra palabra no tiene precio."',
+  };
+
+  getBannerInicio$(): Observable<BannerInicio> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        doc(this.fs, 'config', 'banner'),
+        snap => obs.next(snap.exists() ? (snap.data() as BannerInicio) : this.BANNER_DEFAULT),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async actualizarBannerInicio(data: BannerInicio): Promise<void> {
+    await setDoc(doc(this.fs, 'config', 'banner'), data);
   }
 
   // â”€â”€ Logros â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
