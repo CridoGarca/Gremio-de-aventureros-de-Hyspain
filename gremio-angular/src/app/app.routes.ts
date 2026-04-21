@@ -10,6 +10,7 @@ import { LogrosComponent } from './components/logros/logros.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
 import { CaballosComponent } from './components/caballos/caballos.component';
+import { TiendaComponent } from './components/tienda/tienda.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +26,7 @@ export const routes: Routes = [
       { path: 'ranking-semanal', redirectTo: 'ranking-global', pathMatch: 'full' },
       { path: 'logros', component: LogrosComponent },
       { path: 'caballos', component: CaballosComponent },
+      { path: 'tienda', component: TiendaComponent },
       { path: 'admin', component: AdminComponent, canActivate: [adminPuroGuard] },
       { path: 'seguimiento', component: SeguimientoComponent, canActivate: [adminGuard] },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }

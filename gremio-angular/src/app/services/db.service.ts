@@ -6,7 +6,7 @@ import {
   onSnapshot, deleteField
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras, BannerInicio } from '../models/models';
+import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras, BannerInicio, ItemTienda, PedidoTienda } from '../models/models';
 import { DATA_BRUTA } from '../constants/logros-data';
 import { FIRESTORE_TOKEN } from './firestore.token';
 
@@ -325,6 +325,53 @@ export class DbService {
 
   async eliminarNoticiaCarreras(id: number): Promise<void> {
     await deleteDoc(doc(this.fs, 'caballos_noticias', id.toString()));
+  }
+
+  // ── Tienda: Items ────────────────────────────────────────
+  getItemsTienda$(): Observable<ItemTienda[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'tienda_items'), orderBy('id', 'asc')),
+        snap => obs.next(snap.docs.map(d => d.data() as ItemTienda)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearItemTienda(item: Omit<ItemTienda, 'id'>): Promise<void> {
+    const id = Date.now();
+    await setDoc(doc(this.fs, 'tienda_items', id.toString()), { ...item, id });
+  }
+
+  async actualizarItemTienda(id: number, data: Partial<ItemTienda>): Promise<void> {
+    await updateDoc(doc(this.fs, 'tienda_items', id.toString()), data as Record<string, unknown>);
+  }
+
+  async eliminarItemTienda(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'tienda_items', id.toString()));
+  }
+
+  // ── Tienda: Pedidos ──────────────────────────────────────
+  getPedidosTienda$(): Observable<PedidoTienda[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'tienda_pedidos'), orderBy('fecha', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as PedidoTienda)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearPedidoTienda(p: PedidoTienda): Promise<void> {
+    await setDoc(doc(this.fs, 'tienda_pedidos', p.id.toString()), p);
+  }
+
+  async actualizarPedidoTienda(id: number, data: Partial<PedidoTienda>): Promise<void> {
+    await updateDoc(doc(this.fs, 'tienda_pedidos', id.toString()), data as Record<string, unknown>);
+  }
+
+  async eliminarPedidoTienda(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'tienda_pedidos', id.toString()));
   }
 }
 

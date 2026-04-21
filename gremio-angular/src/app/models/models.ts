@@ -137,3 +137,33 @@ export interface NoticiaCarreras {
   fecha: string;
   imagen: string | null;
 }
+
+// ── Tienda ────────────────────────────────────────────────
+export interface ItemTienda {
+  id: number;
+  nombre: string;
+  imagen: string;
+  descripcion?: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
+}
+
+export interface LineaPedido {
+  itemId: number;
+  nombre: string;
+  cantidad: number;
+  imagen?: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
+}
+
+export interface PedidoTienda {
+  id: number;
+  aventurero: string;
+  fotoAventurero?: string;
+  lineas: LineaPedido[];
+  fecha: number;
+  estado: 'pendiente' | 'completado';
+}

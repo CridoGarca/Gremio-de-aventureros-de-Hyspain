@@ -1,0 +1,384 @@
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODAL: Añadir / Editar Item (solo ADMIN)              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+@if (modalItem()) {
+  <div class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-lg border border-yellow-600/50">
+      <h3 class="text-2xl text-yellow-500 fuente-gremio mb-4 border-b border-yellow-700/30 pb-2">
+        <i class="fa-solid fa-pen-to-square mr-2"></i>
+        {{ editandoId !== null ? 'Editar Item' : 'Nuevo Item' }}
+      </h3>
+      <div class="space-y-4">
+        <!-- Imagen -->
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Imagen del item</label>
+          <input type="file" accept="image/*" (change)="abrirRecorteTienda($event)"
+            class="w-full p-2.5 rounded text-gray-300 input-rol file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-yellow-700 file:text-white hover:file:bg-yellow-600 cursor-pointer">
+          @if (itemImagen) {
+            <img [src]="itemImagen" class="mt-2 w-24 h-24 object-cover rounded-lg border border-yellow-700/40 mx-auto block">
+          }
+        </div>
+        <!-- Nombre -->
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Nombre del item</label>
+          <input [(ngModel)]="itemNombre" type="text" placeholder="Ej: Poción de vida" class="w-full p-2.5 rounded text-white input-rol">
+        </div>
+        <!-- Descripción -->
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Descripción (opcional)</label>
+          <input [(ngModel)]="itemDescripcion" type="text" placeholder="Ej: Restaura 50 de vida" class="w-full p-2.5 rounded text-white input-rol">
+        </div>
+        <!-- Precio en monedas -->
+        <div>
+          <label class="block text-gray-400 text-sm mb-2"><i class="fa-solid fa-coins mr-1 text-yellow-600"></i>Precio en monedas</label>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-yellow-400 text-xs mb-1"><i class="fa-solid fa-circle text-yellow-400 mr-1"></i>Oro</label>
+              <input [(ngModel)]="itemOro" type="number" min="0" class="w-full p-2 rounded text-white input-rol text-center">
+            </div>
+            <div>
+              <label class="block text-gray-300 text-xs mb-1"><i class="fa-solid fa-circle text-gray-300 mr-1"></i>Plata</label>
+              <input [(ngModel)]="itemPlata" type="number" min="0" class="w-full p-2 rounded text-white input-rol text-center">
+            </div>
+            <div>
+              <label class="block text-orange-400 text-xs mb-1"><i class="fa-solid fa-circle text-orange-400 mr-1"></i>Cobre</label>
+              <input [(ngModel)]="itemCobre" type="number" min="0" class="w-full p-2 rounded text-white input-rol text-center">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button (click)="cerrarModalItem()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="guardarItem()" class="px-5 py-2 btn-medieval rounded font-bold">
+          <i class="fa-solid fa-save mr-2"></i>Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODAL: Recorte de imagen                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+@if (modalRecorte()) {
+  <div class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4">
+    <div class="panel-cristal p-6 rounded-xl w-full max-w-lg border border-yellow-600/50">
+      <h3 class="text-2xl text-yellow-500 fuente-gremio mb-4 border-b border-yellow-700/30 pb-2">
+        <i class="fa-solid fa-crop-simple mr-2"></i>Encuadra la Imagen
+      </h3>
+      <div class="img-container bg-black border border-gray-700 mb-4 rounded flex justify-center items-center">
+        <img #imgRecorteTienda [src]="imgSrc" style="max-width:100%">
+      </div>
+      <div class="flex justify-end gap-3 mt-4">
+        <button (click)="cancelarRecorte()" class="px-5 py-2 bg-neutral-800 text-gray-300 border border-gray-600 rounded hover:bg-neutral-700 transition">Cancelar</button>
+        <button (click)="confirmarRecorte()" class="px-5 py-2 btn-medieval rounded font-bold"><i class="fa-solid fa-check mr-2"></i>Confirmar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PANEL: Carrito lateral                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+@if (mostrarCarrito()) {
+  <div class="fixed inset-0 z-40 flex justify-end" (click)="mostrarCarrito.set(false)">
+    <div class="relative h-full w-full max-w-sm bg-black/95 border-l border-yellow-700/50 shadow-2xl flex flex-col"
+         (click)="$event.stopPropagation()">
+      <!-- Cabecera carrito -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-yellow-700/30">
+        <h3 class="text-xl text-yellow-500 fuente-gremio"><i class="fa-solid fa-cart-shopping mr-2"></i>Tu Cesta</h3>
+        <button (click)="mostrarCarrito.set(false)" class="text-gray-400 hover:text-white transition text-xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Items del carrito -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        @if (carrito.length === 0) {
+          <p class="text-gray-500 text-center mt-8 italic">La cesta está vacía.</p>
+        }
+        @for (c of carrito; track c.item.id) {
+          <div class="flex items-center gap-3 bg-black/50 border border-gray-700/60 rounded-lg p-3">
+            <img [src]="c.item.imagen" class="w-12 h-12 object-cover rounded border border-gray-600 flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-semibold text-sm truncate">{{ c.item.nombre }}</p>
+              @if (hayMonedas(c.item)) {
+                <div class="flex gap-2 mt-0.5 flex-wrap">
+                  @if (c.item.oro) { <span class="text-yellow-400 text-xs"><i class="fa-solid fa-circle mr-0.5 text-[10px]"></i>{{ c.item.oro * c.cantidad }}</span> }
+                  @if (c.item.plata) { <span class="text-gray-300 text-xs"><i class="fa-solid fa-circle mr-0.5 text-[10px]"></i>{{ c.item.plata * c.cantidad }}</span> }
+                  @if (c.item.cobre) { <span class="text-orange-400 text-xs"><i class="fa-solid fa-circle mr-0.5 text-[10px]"></i>{{ c.item.cobre * c.cantidad }}</span> }
+                </div>
+              }
+            </div>
+            <!-- Cantidad -->
+            <div class="flex items-center gap-1">
+              <button (click)="cambiarCantidad(c.item.id, -1)"
+                class="w-6 h-6 rounded bg-neutral-700 hover:bg-neutral-600 text-white text-xs transition flex items-center justify-center">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <span class="text-white font-bold w-6 text-center text-sm">{{ c.cantidad }}</span>
+              <button (click)="cambiarCantidad(c.item.id, 1)"
+                class="w-6 h-6 rounded bg-neutral-700 hover:bg-neutral-600 text-white text-xs transition flex items-center justify-center">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+            <button (click)="quitarDelCarrito(c.item.id)" class="text-red-400 hover:text-red-300 transition ml-1">
+              <i class="fa-solid fa-trash text-sm"></i>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Total y enviar -->
+      @if (carrito.length > 0) {
+        <div class="border-t border-yellow-700/30 p-4 space-y-3">
+          <div class="bg-black/50 rounded-lg p-3 space-y-1">
+            <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Total del pedido</p>
+            @if (totalOro() > 0) {
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle text-yellow-400 text-xs"></i>
+                <span class="text-yellow-400 font-bold">{{ totalOro() }} Oro</span>
+              </div>
+            }
+            @if (totalPlata() > 0) {
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle text-gray-300 text-xs"></i>
+                <span class="text-gray-300 font-bold">{{ totalPlata() }} Plata</span>
+              </div>
+            }
+            @if (totalCobre() > 0) {
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle text-orange-400 text-xs"></i>
+                <span class="text-orange-400 font-bold">{{ totalCobre() }} Cobre</span>
+              </div>
+            }
+            @if (totalOro() === 0 && totalPlata() === 0 && totalCobre() === 0) {
+              <span class="text-gray-400 text-sm italic">Sin coste</span>
+            }
+          </div>
+          <button (click)="enviarPedido()"
+            class="w-full py-2.5 btn-medieval rounded-lg font-bold text-sm">
+            <i class="fa-solid fa-paper-plane mr-2"></i>Enviar Pedido al Gremio
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PÁGINA PRINCIPAL DE LA TIENDA                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="animate-[fadeIn_0.3s_ease-in-out]">
+
+  <!-- Cabecera -->
+  <div class="flex flex-wrap items-center gap-4 mb-6 border-b border-yellow-700/30 pb-4">
+    <i class="fa-solid fa-store text-4xl text-yellow-600"></i>
+    <div class="flex-1">
+      <h3 class="text-3xl text-yellow-500 fuente-gremio">Tienda del Gremio</h3>
+      <p class="text-gray-400 text-sm mt-0.5">Adquiere items con tus monedas ganadas en misiones</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <!-- Botón carrito (usuarios) -->
+      @if (!auth.esAdmin()) {
+        <button (click)="mostrarCarrito.set(true)"
+          class="relative px-4 py-2 bg-yellow-900/40 text-yellow-400 font-bold rounded border border-yellow-600 shadow-[0_0_8px_rgba(212,175,55,0.3)] hover:bg-yellow-800/60 transition">
+          <i class="fa-solid fa-cart-shopping mr-2"></i>Cesta
+          @if (carrito.length > 0) {
+            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {{ carrito.length }}
+            </span>
+          }
+        </button>
+      }
+      <!-- Botón añadir item (admin) -->
+      @if (auth.esAdminPuro()) {
+        <button (click)="abrirNuevoItem()"
+          class="px-4 py-2 bg-green-900/40 text-green-400 font-bold rounded border border-green-600 shadow-[0_0_8px_rgba(74,222,128,0.2)] hover:bg-green-800/60 transition">
+          <i class="fa-solid fa-plus mr-2"></i>Añadir Item
+        </button>
+        <button (click)="mostrarConsolaAdmin.set(!mostrarConsolaAdmin())"
+          class="px-4 py-2 font-bold rounded border transition"
+          [class]="mostrarConsolaAdmin() ? 'bg-purple-800/60 text-purple-300 border-purple-500' : 'bg-purple-900/40 text-purple-400 border-purple-600 hover:bg-purple-800/60'">
+          <i class="fa-solid fa-terminal mr-2"></i>Consola
+          @if (pedidosPendientes().length > 0) {
+            <span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              {{ pedidosPendientes().length }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Aviso pedido enviado -->
+  @if (mensajePedidoOk()) {
+    <div class="mb-4 bg-green-900/50 border border-green-600/60 text-green-300 px-4 py-3 rounded-lg flex items-center gap-2 animate-[fadeIn_0.3s_ease-in-out]">
+      <i class="fa-solid fa-check-circle"></i>
+      <span>¡Pedido enviado al Gremio! Un maestro se pondrá en contacto contigo.</span>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- CONSOLA ADMIN: Pedidos recibidos                      -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  @if (auth.esAdminPuro() && mostrarConsolaAdmin()) {
+    <div class="mb-8 bg-black/50 border border-purple-700/60 rounded-xl p-5 animate-[fadeIn_0.3s_ease-in-out]">
+      <h4 class="text-xl text-purple-400 fuente-gremio mb-4 border-b border-purple-900/50 pb-2 flex items-center gap-2">
+        <i class="fa-solid fa-terminal"></i>Consola de Pedidos
+        <span class="ml-auto text-sm font-normal text-gray-400">
+          {{ pedidosPendientes().length }} pendiente{{ pedidosPendientes().length !== 1 ? 's' : '' }} · {{ pedidosCompletados().length }} completado{{ pedidosCompletados().length !== 1 ? 's' : '' }}
+        </span>
+      </h4>
+
+      @if (pedidos.length === 0) {
+        <p class="text-gray-500 text-center italic py-6">No hay pedidos registrados.</p>
+      }
+
+      <!-- Pedidos pendientes -->
+      @if (pedidosPendientes().length > 0) {
+        <p class="text-xs text-purple-300 uppercase tracking-wider mb-3 font-bold">Pendientes</p>
+        <div class="space-y-3 mb-6">
+          @for (p of pedidosPendientes(); track p.id) {
+            <div class="bg-purple-950/30 border border-purple-800/50 rounded-lg p-4">
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="flex items-center gap-3">
+                  <img [src]="p.fotoAventurero || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'"
+                    class="w-9 h-9 rounded-full border border-purple-700/50 object-cover">
+                  <div>
+                    <span class="font-bold text-yellow-400">{{ p.aventurero }}</span>
+                    <span class="text-gray-500 text-xs ml-2">{{ formatFecha(p.fecha) }}</span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button (click)="completarPedido(p.id)"
+                    class="px-3 py-1.5 bg-green-800/60 text-green-300 border border-green-600/60 rounded hover:bg-green-700/60 transition text-sm font-bold">
+                    <i class="fa-solid fa-check mr-1"></i>Completado
+                  </button>
+                  <button (click)="eliminarPedido(p.id)"
+                    class="px-2 py-1.5 bg-red-900/40 text-red-400 border border-red-700/50 rounded hover:bg-red-800/60 transition text-sm">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- Líneas del pedido -->
+              <div class="space-y-2">
+                @for (l of p.lineas; track l.itemId) {
+                  <div class="flex items-center gap-3 bg-black/40 rounded p-2">
+                    <img [src]="l.imagen || ''" class="w-10 h-10 object-cover rounded border border-gray-700/50 flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                      <span class="text-white text-sm font-semibold">{{ l.nombre }}</span>
+                      <span class="text-gray-400 text-xs ml-2">×{{ l.cantidad }}</span>
+                    </div>
+                    <div class="flex gap-2 text-xs flex-shrink-0">
+                      @if (l.oro) { <span class="text-yellow-400"><i class="fa-solid fa-circle text-[9px] mr-0.5"></i>{{ l.oro * l.cantidad }}</span> }
+                      @if (l.plata) { <span class="text-gray-300"><i class="fa-solid fa-circle text-[9px] mr-0.5"></i>{{ l.plata * l.cantidad }}</span> }
+                      @if (l.cobre) { <span class="text-orange-400"><i class="fa-solid fa-circle text-[9px] mr-0.5"></i>{{ l.cobre * l.cantidad }}</span> }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Pedidos completados (colapsados) -->
+      @if (pedidosCompletados().length > 0) {
+        <p class="text-xs text-gray-500 uppercase tracking-wider mb-3 font-bold">Completados</p>
+        <div class="space-y-2">
+          @for (p of pedidosCompletados(); track p.id) {
+            <div class="bg-black/30 border border-gray-700/40 rounded-lg px-4 py-3 flex items-center justify-between gap-3 opacity-60">
+              <div class="flex items-center gap-3">
+                <img [src]="p.fotoAventurero || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'"
+                  class="w-7 h-7 rounded-full border border-gray-600 object-cover">
+                <span class="text-gray-400 text-sm">{{ p.aventurero }}</span>
+                <span class="text-gray-600 text-xs">{{ formatFecha(p.fecha) }}</span>
+                <span class="text-green-600 text-xs"><i class="fa-solid fa-check mr-1"></i>Completado</span>
+              </div>
+              <button (click)="eliminarPedido(p.id)" class="text-red-700 hover:text-red-500 transition text-sm">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- CATÁLOGO DE ITEMS                                     -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  @if (items.length === 0) {
+    <div class="text-center py-16">
+      <i class="fa-solid fa-store text-5xl text-gray-700 mb-4 block"></i>
+      <p class="text-gray-500 italic">La tienda está vacía. El maestro del gremio aún no ha añadido ningún item.</p>
+    </div>
+  }
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    @for (item of items; track item.id) {
+      <div class="relative group bg-gradient-to-b from-[#1c1814] to-[#121010] border border-[#5c4033] rounded-xl overflow-hidden shadow-[2px_2px_10px_rgba(0,0,0,0.8)] hover:border-yellow-700/60 hover:shadow-[0_0_15px_rgba(212,175,55,0.15)] transition-all duration-300">
+
+        <!-- Admin controls -->
+        @if (auth.esAdminPuro()) {
+          <div class="absolute top-2 right-2 z-10 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button (click)="abrirEditarItem(item)"
+              class="w-7 h-7 rounded bg-black/80 text-yellow-400 border border-yellow-700/50 hover:bg-yellow-900/60 transition flex items-center justify-center">
+              <i class="fa-solid fa-pen text-xs"></i>
+            </button>
+            <button (click)="eliminarItem(item.id)"
+              class="w-7 h-7 rounded bg-black/80 text-red-400 border border-red-700/50 hover:bg-red-900/60 transition flex items-center justify-center">
+              <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+          </div>
+        }
+
+        <!-- Imagen -->
+        <div class="aspect-square overflow-hidden bg-black/50">
+          <img [src]="item.imagen" [alt]="item.nombre"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        </div>
+
+        <!-- Info -->
+        <div class="p-3">
+          <h4 class="text-yellow-400 font-bold text-sm fuente-gremio leading-tight mb-1 line-clamp-2">{{ item.nombre }}</h4>
+          @if (item.descripcion) {
+            <p class="text-gray-500 text-xs mb-2 line-clamp-1">{{ item.descripcion }}</p>
+          }
+
+          <!-- Precio -->
+          @if (hayMonedas(item)) {
+            <div class="flex gap-2 flex-wrap mb-3">
+              @if (item.oro) {
+                <span class="flex items-center gap-1 text-yellow-400 text-xs font-bold">
+                  <i class="fa-solid fa-circle text-yellow-400 text-[9px]"></i>{{ item.oro }} oro
+                </span>
+              }
+              @if (item.plata) {
+                <span class="flex items-center gap-1 text-gray-300 text-xs font-bold">
+                  <i class="fa-solid fa-circle text-gray-300 text-[9px]"></i>{{ item.plata }} plata
+                </span>
+              }
+              @if (item.cobre) {
+                <span class="flex items-center gap-1 text-orange-400 text-xs font-bold">
+                  <i class="fa-solid fa-circle text-orange-400 text-[9px]"></i>{{ item.cobre }} cobre
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="text-green-500 text-xs font-bold mb-3"><i class="fa-solid fa-gift mr-1"></i>Gratis</p>
+          }
+
+          <!-- Botón añadir al carrito (solo usuarios no admin) -->
+          @if (!auth.esAdminPuro()) {
+            <button (click)="agregarAlCarrito(item)"
+              class="w-full py-1.5 text-xs font-bold rounded btn-medieval transition">
+              <i class="fa-solid fa-cart-plus mr-1"></i>Añadir
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

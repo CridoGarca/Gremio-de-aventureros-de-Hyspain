@@ -32,6 +32,10 @@
         class="px-3 py-2 bg-black/40 text-emerald-600/80 rounded border border-emerald-900/40 hover:bg-emerald-950/40 hover:border-emerald-700/50 hover:text-emerald-400 transition">
         <i class="fa-solid fa-horse md:mr-2"></i><span class="hidden md:inline">Carreras</span></a>
 
+      <a routerLink="/app/tienda" routerLinkActive="!bg-amber-900/50 !border-amber-600/70 !text-amber-300"
+        class="px-3 py-2 bg-black/40 text-amber-600/80 rounded border border-amber-900/40 hover:bg-amber-950/40 hover:border-amber-700/50 hover:text-amber-400 transition">
+        <i class="fa-solid fa-store md:mr-2"></i><span class="hidden md:inline">Tienda</span></a>
+
       @if (auth.esAdmin()) {
         @if (auth.esAdminPuro()) {
           <a routerLink="/app/admin" routerLinkActive="bg-yellow-800/60"
