@@ -107,9 +107,27 @@ export class MisionesComponent {
     return h > 0 ? `${h}h ${min}m` : `${min}m`;
   }
 
+  // Devuelve los ids de misiones disponibles actualmente para una dificultad
+  private idsMisionesDeDificultad(dif: string): number[] {
+    return this.misiones().filter(x => x.dificultad === dif).map(x => x.id);
+  }
+
+  // Si el historial de esa dificultad ya contiene todas las misiones disponibles,
+  // se considera "rotación cerrada" y todas vuelven a estar disponibles.
+  private historialBloqueaTodo(dif: string): boolean {
+    const u = this.auth.usuario();
+    const hist = u?.historialMisiones?.[dif] || [];
+    const ids = this.idsMisionesDeDificultad(dif);
+    if (ids.length === 0) return false;
+    return ids.every(id => hist.includes(id));
+  }
+
   enHistorial(m: Mision): boolean {
     const u = this.auth.usuario();
-    return !!(u?.historialMisiones?.[m.dificultad]?.includes(m.id));
+    if (!u?.historialMisiones?.[m.dificultad]?.includes(m.id)) return false;
+    // Si todas las misiones de la categoría están en el historial, se reinicia la rotación
+    if (this.historialBloqueaTodo(m.dificultad)) return false;
+    return true;
   }
 
   misionActivaEsEsta(m: Mision): boolean {
@@ -125,7 +143,14 @@ export class MisionesComponent {
     if (u.misionActiva) { alert('Ya tienes una misión en curso.'); return; }
     const cd = this.enCooldown(m);
     if (cd > 0) { alert(`Aún te estás recuperando. No puedes aceptar misiones de dificultad ${m.dificultad} todavía.`); return; }
-    if (this.enHistorial(m)) {
+
+    // Si el historial ya contiene todas las misiones de la categoría, se reinicia
+    // la rotación para que vuelvan a estar disponibles.
+    if (this.historialBloqueaTodo(m.dificultad)) {
+      if (!u.historialMisiones) u.historialMisiones = {};
+      u.historialMisiones = { ...u.historialMisiones, [m.dificultad]: [] };
+      await this.db.actualizarUsuario(u.nombre, { historialMisiones: u.historialMisiones });
+    } else if (this.enHistorial(m)) {
       const lim = LIMITE_HISTORIAL[m.dificultad] || 6;
       alert(`Debes completar otras ${lim} misiones de dificultad ${m.dificultad} antes de poder repetir esta.`); return;
     }
