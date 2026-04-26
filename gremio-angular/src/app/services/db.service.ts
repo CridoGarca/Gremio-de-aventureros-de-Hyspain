@@ -97,8 +97,26 @@ export class DbService {
     });
   }
 
+  // Resuelve el id real del documento de un usuario. Algunas cuentas
+  // antiguas se crearon con el nombre original (mayúsculas) como id de
+  // documento, mientras que las nuevas usan siempre minúsculas. Probamos
+  // primero la versión en minúsculas y, si no existe, caemos al nombre
+  // original. Devuelve null si no existe ninguna.
+  private async resolverDocIdUsuario(nombre: string): Promise<string | null> {
+    const lower = nombre.toLowerCase();
+    const lowerSnap = await getDoc(doc(this.fs, 'usuarios', lower));
+    if (lowerSnap.exists()) return lower;
+    if (lower !== nombre) {
+      const origSnap = await getDoc(doc(this.fs, 'usuarios', nombre));
+      if (origSnap.exists()) return nombre;
+    }
+    return null;
+  }
+
   async getUsuario(nombre: string): Promise<Usuario | null> {
-    const snap = await getDoc(doc(this.fs, 'usuarios', nombre.toLowerCase()));
+    const id = await this.resolverDocIdUsuario(nombre);
+    if (!id) return null;
+    const snap = await getDoc(doc(this.fs, 'usuarios', id));
     return snap.exists() ? (snap.data() as Usuario) : null;
   }
 
@@ -107,11 +125,13 @@ export class DbService {
   }
 
   async actualizarUsuario(nombre: string, data: Partial<Usuario>): Promise<void> {
-    await updateDoc(doc(this.fs, 'usuarios', nombre.toLowerCase()), data as Record<string, unknown>);
+    const id = (await this.resolverDocIdUsuario(nombre)) ?? nombre.toLowerCase();
+    await updateDoc(doc(this.fs, 'usuarios', id), data as Record<string, unknown>);
   }
 
   async eliminarUsuario(nombre: string): Promise<void> {
-    await deleteDoc(doc(this.fs, 'usuarios', nombre.toLowerCase()));
+    const id = (await this.resolverDocIdUsuario(nombre)) ?? nombre.toLowerCase();
+    await deleteDoc(doc(this.fs, 'usuarios', id));
   }
 
   // â”€â”€ Misiones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
