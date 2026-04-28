@@ -23,6 +23,20 @@ export class DbService {
     return ahora.getTime();
   }
 
+  // Identificador estable de la semana ISO (lunes-domingo) en UTC.
+  // Formato "YYYY-Www" (p.ej. "2026-W18"). Es independiente de la zona
+  // horaria y del horario de verano, evitando que la comparacion de
+  // "semana actual" falle entre clientes y resetee los puntos semanales.
+  private obtenerSemanaId(fecha: Date = new Date()): string {
+    const d = new Date(Date.UTC(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate()));
+    // Jueves de la semana actual segun ISO (lunes=1..domingo=7)
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+  }
+
   async inicializar(): Promise<void> {
     await Promise.all([this.inicializarAdmin(), this.inicializarLogros(), this.inicializarDificultades()]);
     await this.checkResetSemanal();
@@ -75,16 +89,21 @@ export class DbService {
   }
 
   async checkResetSemanal(): Promise<void> {
-    const nowWeekStart = this.obtenerInicioSemana();
+    const semanaId = this.obtenerSemanaId();
     const configRef = doc(this.fs, 'config', 'semana');
     const configSnap = await getDoc(configRef);
-    if (!configSnap.exists() || (configSnap.data() as any)['semanaActual'] !== nowWeekStart) {
-      const usersSnap = await getDocs(collection(this.fs, 'usuarios'));
-      const batch = writeBatch(this.fs);
-      usersSnap.forEach(d => batch.update(d.ref, { puntosSemanales: 0 }));
-      batch.set(configRef, { semanaActual: nowWeekStart });
-      await batch.commit();
-    }
+    const data = configSnap.exists() ? (configSnap.data() as any) : null;
+    // Compatibilidad con el formato antiguo (number en 'semanaActual').
+    // Solo reseteamos si el id de semana ISO ('semanaId') no coincide.
+    // De ese modo, aunque queden timestamps antiguos en 'semanaActual',
+    // no provocan resets espurios cada vez que alguien abre la app.
+    if (data?.semanaId === semanaId) return;
+
+    const usersSnap = await getDocs(collection(this.fs, 'usuarios'));
+    const batch = writeBatch(this.fs);
+    usersSnap.forEach(d => batch.update(d.ref, { puntosSemanales: 0 }));
+    batch.set(configRef, { semanaId, semanaActual: this.obtenerInicioSemana() });
+    await batch.commit();
   }
 
   // â”€â”€ Usuarios â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
