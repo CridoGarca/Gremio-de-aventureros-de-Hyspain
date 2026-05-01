@@ -11,6 +11,7 @@ import { AdminComponent } from './components/admin/admin.component';
 import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
 import { CaballosComponent } from './components/caballos/caballos.component';
 import { TiendaComponent } from './components/tienda/tienda.component';
+import { BibliotecaComponent } from './components/biblioteca/biblioteca.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -27,6 +28,7 @@ export const routes: Routes = [
       { path: 'logros', component: LogrosComponent },
       { path: 'caballos', component: CaballosComponent },
       { path: 'tienda', component: TiendaComponent },
+      { path: 'biblioteca', component: BibliotecaComponent },
       { path: 'admin', component: AdminComponent, canActivate: [adminPuroGuard] },
       { path: 'seguimiento', component: SeguimientoComponent, canActivate: [adminGuard] },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }

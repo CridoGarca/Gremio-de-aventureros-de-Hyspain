@@ -6,7 +6,7 @@ import {
   onSnapshot, deleteField
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras, BannerInicio, ItemTienda, PedidoTienda } from '../models/models';
+import { Usuario, Mision, Noticia, Logro, Dificultad, EntregaHistorial, Escuderia, Corredor, ResultadoCarrera, NoticiaCarreras, BannerInicio, ItemTienda, PedidoTienda, ItemBiblioteca, PedidoBiblioteca } from '../models/models';
 import { DATA_BRUTA } from '../constants/logros-data';
 import { FIRESTORE_TOKEN } from './firestore.token';
 
@@ -412,5 +412,53 @@ export class DbService {
   async eliminarPedidoTienda(id: number): Promise<void> {
     await deleteDoc(doc(this.fs, 'tienda_pedidos', id.toString()));
   }
+
+  // ── Biblioteca Nacional: Items ────────────────────────────
+  getItemsBiblioteca$(): Observable<ItemBiblioteca[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'biblioteca_items'), orderBy('id', 'asc')),
+        snap => obs.next(snap.docs.map(d => d.data() as ItemBiblioteca)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearItemBiblioteca(item: Omit<ItemBiblioteca, 'id'>): Promise<void> {
+    const id = Date.now();
+    await setDoc(doc(this.fs, 'biblioteca_items', id.toString()), { ...item, id });
+  }
+
+  async actualizarItemBiblioteca(id: number, data: Partial<ItemBiblioteca>): Promise<void> {
+    await updateDoc(doc(this.fs, 'biblioteca_items', id.toString()), data as Record<string, unknown>);
+  }
+
+  async eliminarItemBiblioteca(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'biblioteca_items', id.toString()));
+  }
+
+  // ── Biblioteca Nacional: Pedidos ──────────────────────────
+  getPedidosBiblioteca$(): Observable<PedidoBiblioteca[]> {
+    return new Observable(obs => {
+      const unsub = onSnapshot(
+        query(collection(this.fs, 'biblioteca_pedidos'), orderBy('fecha', 'desc')),
+        snap => obs.next(snap.docs.map(d => d.data() as PedidoBiblioteca)),
+        err => obs.error(err));
+      return () => unsub();
+    });
+  }
+
+  async crearPedidoBiblioteca(p: PedidoBiblioteca): Promise<void> {
+    await setDoc(doc(this.fs, 'biblioteca_pedidos', p.id.toString()), p);
+  }
+
+  async actualizarPedidoBiblioteca(id: number, data: Partial<PedidoBiblioteca>): Promise<void> {
+    await updateDoc(doc(this.fs, 'biblioteca_pedidos', id.toString()), data as Record<string, unknown>);
+  }
+
+  async eliminarPedidoBiblioteca(id: number): Promise<void> {
+    await deleteDoc(doc(this.fs, 'biblioteca_pedidos', id.toString()));
+  }
+
 }
 

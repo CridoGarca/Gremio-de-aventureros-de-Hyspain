@@ -23,3 +23,11 @@ export const adminPuroGuard: CanActivateFn = () => {
   if (auth.esAdminPuro()) return true;
   return router.createUrlTree(['/app/inicio']);
 };
+
+// ADMIN o BIBLIOTECARIO: para gestionar la Biblioteca Nacional
+export const bibliotecarioGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.esBibliotecario()) return true;
+  return router.createUrlTree(['/app/inicio']);
+};

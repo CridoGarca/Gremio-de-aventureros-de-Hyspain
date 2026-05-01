@@ -167,3 +167,35 @@ export interface PedidoTienda {
   fecha: number;
   estado: 'pendiente' | 'completado';
 }
+
+// ── Biblioteca Nacional ────────────────────────────────────
+export interface ItemBiblioteca {
+  id: number;
+  nombre: string;
+  imagen: string;
+  descripcion?: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
+}
+
+export interface LineaPedidoBiblioteca {
+  itemId: number;
+  nombre: string;
+  cantidad: number;
+  imagen?: string;
+  oro?: number;
+  plata?: number;
+  cobre?: number;
+}
+
+export interface PedidoBiblioteca {
+  id: number;
+  aventurero: string;
+  fotoAventurero?: string;
+  lineas: LineaPedidoBiblioteca[];
+  fecha: number;
+  estado: 'pendiente' | 'completado';
+}
+
+

@@ -20,6 +20,12 @@ export class AuthService {
     return !!(u && (u.rol === 'ADMIN' || u.nombre === 'ADMIN'));
   });
 
+  // ADMIN o BIBLIOTECARIO: para gestionar la Biblioteca Nacional
+  esBibliotecario = computed(() => {
+    const u = this._usuario();
+    return !!(u && (u.rol === 'ADMIN' || u.nombre === 'ADMIN' || u.rol === 'BIBLIOTECARIO'));
+  });
+
   constructor(private db: DbService, private router: Router) {}
 
   async init(): Promise<void> {
