@@ -284,10 +284,10 @@
       <div>
         <label class="block text-gray-400 text-sm mb-1">Bloque de CC compartido</label>
         <select [(ngModel)]="nuevaDifBloque" class="w-full p-2.5 rounded text-white input-rol bg-neutral-900 cursor-pointer">
-          <option [value]="0">Sin bloque (CC individual)</option>
-          <option [value]="1">Bloque 1 (Pacífico–Sombría)</option>
-          <option [value]="2">Bloque 2 (Demencial+)</option>
-          <option [value]="3">Bloque 3 - Especial (sin CC)</option>
+          <option [ngValue]="0">Sin bloque (CC individual)</option>
+          <option [ngValue]="1">Bloque 1 (Pacífico–Sombría)</option>
+          <option [ngValue]="2">Bloque 2 (Demencial+)</option>
+          <option [ngValue]="3">Bloque 3 - Especial (sin CC)</option>
         </select>
       </div>
       <div class="md:col-span-2">

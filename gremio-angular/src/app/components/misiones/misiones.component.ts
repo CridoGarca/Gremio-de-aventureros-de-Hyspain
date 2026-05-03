@@ -206,7 +206,7 @@ export class MisionesComponent {
     this.editCatPuntos = d.puntos;
     this.editCatCc = d.cc ?? 0;
     this.editCatOrden = d.orden;
-    this.editCatBloque = d.bloque ?? 0;
+    this.editCatBloque = Number(d.bloque ?? 0);
     this.editCatColor = d.color || COLOR_DEFAULT;
     this.editCatFondo = d.fondo || '';
     this.modalEditarCat.set(true);
@@ -216,12 +216,13 @@ export class MisionesComponent {
 
   async guardarEditarCat(): Promise<void> {
     const nombre = this.editCatNombre;
+    const bloqueNum = Number(this.editCatBloque);
     const datos: Record<string, unknown> = {
       puntos: this.editCatPuntos,
       cc: this.editCatCc,
       orden: this.editCatOrden,
       color: this.editCatColor,
-      bloque: this.editCatBloque ? this.editCatBloque : deleteField(),
+      bloque: bloqueNum ? bloqueNum : deleteField(),
       fondo: this.editCatFondo ? this.editCatFondo : deleteField(),
     };
     await this.db.actualizarDificultad(nombre, datos);

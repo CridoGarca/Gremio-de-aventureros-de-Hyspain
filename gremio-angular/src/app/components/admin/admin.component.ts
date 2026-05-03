@@ -188,7 +188,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       puntos: this.nuevaDifPuntos,
       orden,
       cc: this.nuevaDifCc || undefined,
-      bloque: this.nuevaDifBloque || undefined,
+      bloque: Number(this.nuevaDifBloque) || undefined,
       color: this.nuevaDifColor || undefined,
     });
     this.nuevaDifNombre = ''; this.nuevaDifPuntos = 10; this.nuevaDifCc = 0;
