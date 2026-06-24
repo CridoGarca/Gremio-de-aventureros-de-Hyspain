@@ -35,7 +35,6 @@ export class SeguimientoComponent {
   // Modal completar misión
   modalCompletar = signal(false);
   nombreCompletando = '';
-  xpYaEntregada = false;
   dineroEntregado = 0;
 
   // Modal ajustar puntos
@@ -49,7 +48,6 @@ export class SeguimientoComponent {
 
   abrirCompletar(nombreAventurero: string): void {
     this.nombreCompletando = nombreAventurero;
-    this.xpYaEntregada = false;
     this.dineroEntregado = 0;
     this.modalCompletar.set(true);
   }
@@ -61,7 +59,6 @@ export class SeguimientoComponent {
 
   async confirmarCompletar(): Promise<void> {
     const nombreAventurero = this.nombreCompletando;
-    const xpYaEntregada = this.xpYaEntregada;
     const dinero = this.dineroEntregado || 0;
     this.cerrarCompletar();
     const u = { ...this.usuarios().find(x => x.nombre === nombreAventurero)! };
@@ -117,9 +114,8 @@ export class SeguimientoComponent {
       }
     });
 
-    // XP pendiente de entrega:
-    // - ADMIN: puede marcar como ya entregada (xpYaEntregada=true → null)
-    // - MOD: siempre crea entrada pendiente, sin opción de marcarla como entregada
+    // XP pendiente de entrega: el puente GremioBridge la paga automáticamente in-game
+    // (monedas + XP) leyendo este campo. Antes se entregaba a mano y se podía suprimir; ya no.
     const modActual = this.auth.usuario()?.nombre || 'Sistema';
     const esAdmin = this.auth.esAdminPuro();
     const misionOro = u.misionActiva.oro;
@@ -144,7 +140,7 @@ export class SeguimientoComponent {
     if (misionPlata) xpPendiente.plata = misionPlata;
     if (misionCobre) xpPendiente.cobre = misionCobre;
 
-    u.xpPendienteEntrega = (esAdmin && xpYaEntregada) ? null : xpPendiente;
+    u.xpPendienteEntrega = xpPendiente; // siempre se encola; GremioBridge lo paga in-game
 
     const misionTitulo = u.misionActiva.titulo;
     u.misionActiva = null;
